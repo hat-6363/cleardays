@@ -249,24 +249,26 @@
       btn.disabled = true;
 
       try {
-        const derivedPassword = 'joydays_' + btoa(currentEmail).replace(/=/g, '') + '_2025';
-
-        // Step 1: Server upserts user with derived password (handles new + existing magic-link users)
-        const upsertRes = await fetch('/api/set-password', {
+        // Server creates/confirms user and returns a session directly
+        const sessionRes = await fetch('/api/create-session', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ email: currentEmail, password: derivedPassword })
+          body: JSON.stringify({ email: currentEmail })
         });
-        const upsertData = await upsertRes.json();
-        if (!upsertRes.ok) throw new Error(upsertData.error || 'Account setup failed');
+        const sessionData = await sessionRes.json();
+        if (!sessionRes.ok) throw new Error(sessionData.error || 'Session creation failed');
 
-        // Step 2: Sign in with the now-guaranteed password
-        const { data, error } = await sb.auth.signInWithPassword({
-          email: currentEmail,
-          password: derivedPassword
-        });
-        if (error) throw new Error(error.message);
-        if (!data.session) throw new Error('No session returned.');
+        if (sessionData.access_token && sessionData.refresh_token) {
+          // Set the session directly — no password, no email confirmation needed
+          const { data, error } = await sb.auth.setSession({
+            access_token: sessionData.access_token,
+            refresh_token: sessionData.refresh_token,
+          });
+          if (error) throw new Error(error.message);
+          if (!data.session) throw new Error('Could not establish session.');
+        } else {
+          throw new Error('Unexpected response from server. Debug: ' + JSON.stringify(sessionData));
+        }
 
         suc.textContent = '\u2705 Verified! Taking you to your dashboard\u2026';
         suc.classList.add('show');
