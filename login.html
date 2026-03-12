@@ -10,230 +10,54 @@
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <style>
   :root {
-    --ink: #1A1208;
-    --ink-soft: #4A3728;
-    --cream: #FDFAF5;
-    --warm: #F7F1E8;
-    --sand: #EDE3D4;
-    --tan: #C9B99A;
-    --orange: #E05C1A;
-    --orange-light: #FFF3EC;
-    --green: #3D6B4A;
-    --green-light: #EBF2ED;
-    --border: #E5D9C8;
+    --ink: #1A1208; --ink-soft: #4A3728; --cream: #FDFAF5;
+    --tan: #C9B99A; --orange: #E05C1A; --orange-light: #FFF3EC;
+    --green: #3D6B4A; --green-light: #EBF2ED; --border: #E5D9C8;
   }
   * { margin: 0; padding: 0; box-sizing: border-box; }
   body {
-    font-family: 'Outfit', sans-serif;
-    background: var(--cream);
-    color: var(--ink);
-    min-height: 100vh;
-    display: flex;
-    flex-direction: column;
+    font-family: 'Outfit', sans-serif; background: var(--cream);
+    color: var(--ink); min-height: 100vh; display: flex; flex-direction: column;
     background: radial-gradient(ellipse 80% 50% at 50% 0%, rgba(224,92,26,0.06) 0%, transparent 70%);
   }
-  nav {
-    padding: 20px 40px;
-    border-bottom: 1px solid var(--border);
-    background: white;
-  }
-  .logo {
-    font-family: 'Cormorant Garamond', serif;
-    font-size: 24px;
-    font-weight: 700;
-    color: var(--ink);
-    text-decoration: none;
-  }
+  nav { padding: 20px 40px; border-bottom: 1px solid var(--border); background: white; }
+  .logo { font-family: 'Cormorant Garamond', serif; font-size: 24px; font-weight: 700; color: var(--ink); text-decoration: none; }
   .logo em { color: var(--orange); font-style: normal; }
-  .page {
-    flex: 1;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    padding: 40px 20px;
-  }
-  .card {
-    background: white;
-    border: 1.5px solid var(--border);
-    border-radius: 20px;
-    padding: 48px 44px;
-    width: 100%;
-    max-width: 420px;
-    box-shadow: 0 8px 40px rgba(26,18,8,0.08);
-  }
+  .page { flex: 1; display: flex; align-items: center; justify-content: center; padding: 40px 20px; }
+  .card { background: white; border: 1.5px solid var(--border); border-radius: 20px; padding: 48px 44px; width: 100%; max-width: 420px; box-shadow: 0 8px 40px rgba(26,18,8,0.08); }
   .card-icon { font-size: 36px; margin-bottom: 16px; }
-  .card-title {
-    font-family: 'Cormorant Garamond', serif;
-    font-size: 32px;
-    font-weight: 700;
-    color: var(--ink);
-    margin-bottom: 6px;
-  }
-  .card-sub {
-    font-size: 14px;
-    color: var(--ink-soft);
-    margin-bottom: 28px;
-    line-height: 1.6;
-  }
-  .form-label {
-    display: block;
-    font-size: 11px;
-    font-weight: 600;
-    letter-spacing: 0.8px;
-    text-transform: uppercase;
-    color: var(--ink-soft);
-    margin-bottom: 6px;
-  }
-  .form-input {
-    width: 100%;
-    border: 1.5px solid var(--border);
-    border-radius: 10px;
-    padding: 12px 16px;
-    font-family: 'Outfit', sans-serif;
-    font-size: 15px;
-    color: var(--ink);
-    background: var(--cream);
-    outline: none;
-    transition: border-color 0.2s, box-shadow 0.2s;
-    margin-bottom: 20px;
-  }
-  .form-input:focus {
-    border-color: var(--orange);
-    box-shadow: 0 0 0 3px rgba(224,92,26,0.1);
-    background: white;
-  }
-
-  /* OTP INPUT */
-  .otp-wrap {
-    display: flex;
-    gap: 10px;
-    justify-content: center;
-    margin-bottom: 24px;
-  }
-  .otp-input {
-    width: 52px;
-    height: 60px;
-    border: 1.5px solid var(--border);
-    border-radius: 10px;
-    text-align: center;
-    font-family: 'Outfit', sans-serif;
-    font-size: 24px;
-    font-weight: 600;
-    color: var(--ink);
-    background: var(--cream);
-    outline: none;
-    transition: border-color 0.2s, box-shadow 0.2s;
-    caret-color: var(--orange);
-  }
-  .otp-input:focus {
-    border-color: var(--orange);
-    box-shadow: 0 0 0 3px rgba(224,92,26,0.1);
-    background: white;
-  }
-  .otp-input.filled {
-    border-color: var(--orange);
-    background: var(--orange-light);
-  }
-
-  .btn {
-    width: 100%;
-    background: var(--orange);
-    color: white;
-    border: none;
-    border-radius: 10px;
-    padding: 14px;
-    font-family: 'Outfit', sans-serif;
-    font-size: 15px;
-    font-weight: 600;
-    cursor: pointer;
-    transition: all 0.2s;
-    box-shadow: 0 4px 16px rgba(224,92,26,0.25);
-  }
+  .card-title { font-family: 'Cormorant Garamond', serif; font-size: 32px; font-weight: 700; color: var(--ink); margin-bottom: 6px; }
+  .card-sub { font-size: 14px; color: var(--ink-soft); margin-bottom: 28px; line-height: 1.6; }
+  .form-label { display: block; font-size: 11px; font-weight: 600; letter-spacing: 0.8px; text-transform: uppercase; color: var(--ink-soft); margin-bottom: 6px; }
+  .form-input { width: 100%; border: 1.5px solid var(--border); border-radius: 10px; padding: 12px 16px; font-family: 'Outfit', sans-serif; font-size: 15px; color: var(--ink); background: var(--cream); outline: none; transition: border-color 0.2s, box-shadow 0.2s; margin-bottom: 20px; }
+  .form-input:focus { border-color: var(--orange); box-shadow: 0 0 0 3px rgba(224,92,26,0.1); background: white; }
+  .otp-wrap { display: flex; gap: 10px; justify-content: center; margin-bottom: 24px; }
+  .otp-input { width: 52px; height: 60px; border: 1.5px solid var(--border); border-radius: 10px; text-align: center; font-family: 'Outfit', sans-serif; font-size: 24px; font-weight: 600; color: var(--ink); background: var(--cream); outline: none; transition: border-color 0.2s, box-shadow 0.2s; }
+  .otp-input:focus { border-color: var(--orange); box-shadow: 0 0 0 3px rgba(224,92,26,0.1); background: white; }
+  .otp-input.filled { border-color: var(--orange); background: var(--orange-light); }
+  .btn { width: 100%; background: var(--orange); color: white; border: none; border-radius: 10px; padding: 14px; font-family: 'Outfit', sans-serif; font-size: 15px; font-weight: 600; cursor: pointer; transition: all 0.2s; box-shadow: 0 4px 16px rgba(224,92,26,0.25); }
   .btn:hover { background: #c44d12; transform: translateY(-1px); }
   .btn:disabled { background: var(--tan); cursor: not-allowed; transform: none; box-shadow: none; }
-
-  .error-msg {
-    background: #fdecea;
-    border: 1px solid #f5c6c2;
-    border-radius: 8px;
-    padding: 10px 14px;
-    font-size: 13px;
-    color: #c0392b;
-    margin-bottom: 16px;
-    display: none;
-  }
+  .error-msg { background: #fdecea; border: 1px solid #f5c6c2; border-radius: 8px; padding: 10px 14px; font-size: 13px; color: #c0392b; margin-bottom: 16px; display: none; }
   .error-msg.show { display: block; }
-
-  .success-msg {
-    background: var(--green-light);
-    border: 1px solid rgba(61,107,74,0.2);
-    border-radius: 8px;
-    padding: 10px 14px;
-    font-size: 13px;
-    color: var(--green);
-    margin-bottom: 16px;
-    display: none;
-    font-weight: 500;
-  }
+  .success-msg { background: var(--green-light); border: 1px solid rgba(61,107,74,0.2); border-radius: 8px; padding: 10px 14px; font-size: 13px; color: var(--green); margin-bottom: 16px; display: none; font-weight: 500; }
   .success-msg.show { display: block; }
-
   .step { display: none; }
   .step.active { display: block; }
-
-  .sent-to {
-    font-size: 13px;
-    color: var(--ink-soft);
-    text-align: center;
-    margin-bottom: 20px;
-  }
+  .sent-to { font-size: 13px; color: var(--ink-soft); text-align: center; margin-bottom: 20px; }
   .sent-to strong { color: var(--ink); }
-
-  .resend-link {
-    text-align: center;
-    margin-top: 16px;
-    font-size: 13px;
-    color: var(--tan);
-  }
-  .resend-link a {
-    color: var(--orange);
-    text-decoration: none;
-    font-weight: 500;
-    cursor: pointer;
-  }
-  .resend-link a:hover { text-decoration: underline; }
-
-  .back-link {
-    text-align: center;
-    margin-top: 20px;
-    font-size: 13px;
-    color: var(--tan);
-  }
+  .resend-link { text-align: center; margin-top: 16px; font-size: 13px; color: var(--tan); }
+  .resend-link a { color: var(--orange); text-decoration: none; font-weight: 500; cursor: pointer; }
+  .back-link { text-align: center; margin-top: 20px; font-size: 13px; color: var(--tan); }
   .back-link a { color: var(--orange); text-decoration: none; font-weight: 500; }
-
-  .step-indicator {
-    display: flex;
-    align-items: center;
-    gap: 6px;
-    margin-bottom: 28px;
-  }
-  .step-dot {
-    width: 8px; height: 8px;
-    border-radius: 50%;
-    background: var(--border);
-    transition: background 0.2s;
-  }
+  .step-indicator { display: flex; align-items: center; gap: 6px; margin-bottom: 28px; }
+  .step-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--border); transition: background 0.2s; }
   .step-dot.active { background: var(--orange); }
-  .step-line {
-    flex: 1; height: 1px;
-    background: var(--border);
-  }
+  .step-line { flex: 1; height: 1px; background: var(--border); }
 </style>
 </head>
 <body>
-<nav>
-  <a href="index.html" class="logo">Clear<em>days</em></a>
-</nav>
-
+<nav><a href="index.html" class="logo">Clear<em>days</em></a></nav>
 <div class="page">
   <div class="card">
 
@@ -241,205 +65,237 @@
     <div class="step active" id="step1">
       <div class="card-icon">☀️</div>
       <div class="card-title">Sign in</div>
-      <p class="card-sub">Enter your email and we'll send a 6-digit code to verify it's you. No password needed.</p>
-
+      <p class="card-sub">Enter your email and we'll send a 6-digit code. No password needed.</p>
       <div class="step-indicator">
         <div class="step-dot active"></div>
         <div class="step-line"></div>
         <div class="step-dot"></div>
       </div>
-
       <div class="error-msg" id="error1"></div>
-
       <label class="form-label">Email address</label>
       <input class="form-input" type="email" id="emailInput" placeholder="you@example.com">
       <button class="btn" id="sendBtn" onclick="sendOTP()">Send Code</button>
-
-      <div class="back-link" style="margin-top:16px">
-        <a href="index.html">← Back to Cleardays</a>
-      </div>
+      <div class="back-link" style="margin-top:16px"><a href="index.html">← Back to Cleardays</a></div>
     </div>
 
     <!-- STEP 2: OTP -->
     <div class="step" id="step2">
       <div class="card-icon">📬</div>
-      <div class="card-title">Check your email</div>
+      <div class="card-title">Enter your code</div>
       <p class="card-sub">We sent a 6-digit code to:</p>
       <p class="sent-to"><strong id="sentToEmail"></strong></p>
-
       <div class="step-indicator">
         <div class="step-dot"></div>
         <div class="step-line"></div>
         <div class="step-dot active"></div>
       </div>
-
       <div class="error-msg" id="error2"></div>
       <div class="success-msg" id="success2"></div>
-
       <div class="otp-wrap" id="otpWrap">
-        <input class="otp-input" maxlength="1" type="text" inputmode="numeric" pattern="[0-9]">
-        <input class="otp-input" maxlength="1" type="text" inputmode="numeric" pattern="[0-9]">
-        <input class="otp-input" maxlength="1" type="text" inputmode="numeric" pattern="[0-9]">
-        <input class="otp-input" maxlength="1" type="text" inputmode="numeric" pattern="[0-9]">
-        <input class="otp-input" maxlength="1" type="text" inputmode="numeric" pattern="[0-9]">
-        <input class="otp-input" maxlength="1" type="text" inputmode="numeric" pattern="[0-9]">
+        <input class="otp-input" maxlength="1" type="text" inputmode="numeric">
+        <input class="otp-input" maxlength="1" type="text" inputmode="numeric">
+        <input class="otp-input" maxlength="1" type="text" inputmode="numeric">
+        <input class="otp-input" maxlength="1" type="text" inputmode="numeric">
+        <input class="otp-input" maxlength="1" type="text" inputmode="numeric">
+        <input class="otp-input" maxlength="1" type="text" inputmode="numeric">
       </div>
-
       <button class="btn" id="verifyBtn" onclick="verifyOTP()">Verify & Sign In</button>
-
-      <div class="resend-link">
-        Didn't get it? <a onclick="resendCode()">Resend code</a> · <a onclick="goBack()">Change email</a>
-      </div>
+      <div class="resend-link">Didn't get it? <a onclick="resendCode()">Resend code</a> · <a onclick="goBack()">Change email</a></div>
     </div>
 
   </div>
 </div>
 
 <script>
-  const SUPABASE_URL = 'https://jtrbcorhnokokxtutmio.supabase.co';
-  const SUPABASE_KEY = 'sb_publishable_8Ft91_p3MtwapHLoLWfDLA_ftrebeIb';
-  const { createClient } = supabase;
-  const sb = createClient(SUPABASE_URL, SUPABASE_KEY);
+const SUPABASE_URL = 'https://jtrbcorhnokokxtutmio.supabase.co';
+const SUPABASE_KEY = 'sb_publishable_8Ft91_p3MtwapHLoLWfDLA_ftrebeIb';
+const RESEND_KEY = 're_HPAhAyjy_HhadtEaU7MK9EfFVf7Zyd4h4';
+const { createClient } = supabase;
+const sb = createClient(SUPABASE_URL, SUPABASE_KEY);
 
-  // If already logged in, go straight to dashboard
-  sb.auth.getSession().then(({ data }) => {
-    if (data.session) window.location.href = 'dashboard.html';
-  });
+let currentOTP = '';
+let currentEmail = '';
 
-  // ── OTP INPUTS: auto-advance, backspace, paste ──
-  const otpInputs = document.querySelectorAll('.otp-input');
+// If already logged in, skip to dashboard
+sb.auth.getSession().then(({ data }) => {
+  if (data.session) window.location.href = 'dashboard.html';
+});
 
-  otpInputs.forEach((input, i) => {
-    input.addEventListener('input', (e) => {
-      const val = e.target.value.replace(/\D/g, '');
-      e.target.value = val;
-      if (val) {
-        e.target.classList.add('filled');
-        if (i < 5) otpInputs[i + 1].focus();
-        if (i === 5) verifyOTP(); // auto-submit on last digit
-      } else {
-        e.target.classList.remove('filled');
-      }
-    });
-
-    input.addEventListener('keydown', (e) => {
-      if (e.key === 'Backspace' && !input.value && i > 0) {
-        otpInputs[i - 1].value = '';
-        otpInputs[i - 1].classList.remove('filled');
-        otpInputs[i - 1].focus();
-      }
-    });
-
-    // Handle paste of full code
-    input.addEventListener('paste', (e) => {
-      e.preventDefault();
-      const pasted = (e.clipboardData || window.clipboardData).getData('text').replace(/\D/g, '');
-      if (pasted.length === 6) {
-        otpInputs.forEach((inp, idx) => {
-          inp.value = pasted[idx] || '';
-          inp.classList.toggle('filled', !!pasted[idx]);
-        });
-        otpInputs[5].focus();
-        setTimeout(verifyOTP, 100);
-      }
-    });
-  });
-
-  // ── STEP 1: SEND OTP ──
-  async function sendOTP() {
-    const email = document.getElementById('emailInput').value.trim();
-    const btn = document.getElementById('sendBtn');
-    const err = document.getElementById('error1');
-    err.classList.remove('show');
-
-    if (!email || !email.includes('@')) {
-      err.textContent = 'Please enter a valid email address.';
-      err.classList.add('show');
-      return;
-    }
-
-    btn.textContent = 'Sending…';
-    btn.disabled = true;
-
-    const { error } = await sb.auth.signInWithOtp({
-      email,
-      options: { shouldCreateUser: true }
-    });
-
-    if (error) {
-      err.textContent = error.message;
-      err.classList.add('show');
-      btn.textContent = 'Send Code';
-      btn.disabled = false;
+// OTP input behaviour
+const otpInputs = document.querySelectorAll('.otp-input');
+otpInputs.forEach((input, i) => {
+  input.addEventListener('input', (e) => {
+    const val = e.target.value.replace(/\D/g, '');
+    e.target.value = val;
+    if (val) {
+      e.target.classList.add('filled');
+      if (i < 5) otpInputs[i + 1].focus();
+      if (i === 5) setTimeout(verifyOTP, 100);
     } else {
-      document.getElementById('sentToEmail').textContent = email;
-      document.getElementById('step1').classList.remove('active');
-      document.getElementById('step2').classList.add('active');
-      otpInputs[0].focus();
+      e.target.classList.remove('filled');
     }
+  });
+  input.addEventListener('keydown', (e) => {
+    if (e.key === 'Backspace' && !input.value && i > 0) {
+      otpInputs[i-1].value = '';
+      otpInputs[i-1].classList.remove('filled');
+      otpInputs[i-1].focus();
+    }
+  });
+  input.addEventListener('paste', (e) => {
+    e.preventDefault();
+    const pasted = (e.clipboardData || window.clipboardData).getData('text').replace(/\D/g,'');
+    if (pasted.length === 6) {
+      otpInputs.forEach((inp, idx) => { inp.value = pasted[idx]||''; inp.classList.toggle('filled', !!pasted[idx]); });
+      otpInputs[5].focus();
+      setTimeout(verifyOTP, 100);
+    }
+  });
+});
+
+function generateOTP() {
+  return Math.floor(100000 + Math.random() * 900000).toString();
+}
+
+async function sendOTP() {
+  const email = document.getElementById('emailInput').value.trim();
+  const btn = document.getElementById('sendBtn');
+  const err = document.getElementById('error1');
+  err.classList.remove('show');
+
+  if (!email || !email.includes('@')) {
+    err.textContent = 'Please enter a valid email address.';
+    err.classList.add('show');
+    return;
   }
 
-  // ── STEP 2: VERIFY OTP ──
-  async function verifyOTP() {
-    const email = document.getElementById('emailInput').value.trim();
-    const code = Array.from(otpInputs).map(i => i.value).join('');
-    const btn = document.getElementById('verifyBtn');
-    const err = document.getElementById('error2');
-    const suc = document.getElementById('success2');
+  btn.textContent = 'Sending…';
+  btn.disabled = true;
 
-    err.classList.remove('show');
-    suc.classList.remove('show');
+  // Generate code and store in Supabase otp_codes table
+  currentOTP = generateOTP();
+  currentEmail = email;
 
-    if (code.length < 6) {
-      err.textContent = 'Please enter all 6 digits.';
-      err.classList.add('show');
-      return;
-    }
+  // Store OTP in Supabase with 10min expiry
+  const expiry = new Date(Date.now() + 10 * 60 * 1000).toISOString();
+  await sb.from('otp_codes').upsert({ email, code: currentOTP, expires_at: expiry }, { onConflict: 'email' });
 
-    btn.textContent = 'Verifying…';
-    btn.disabled = true;
-
-    const { error } = await sb.auth.verifyOtp({
-      email,
-      token: code,
-      type: 'email'
+  // Send email via Resend API
+  try {
+    const res = await fetch('https://api.resend.com/emails', {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${RESEND_KEY}`,
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        from: 'Cleardays <onboarding@resend.dev>',
+        to: [email],
+        subject: `Your Cleardays sign-in code: ${currentOTP}`,
+        html: `
+          <div style="font-family:'Outfit',sans-serif;max-width:480px;margin:0 auto;padding:40px 20px;background:#FDFAF5;">
+            <div style="font-family:Georgia,serif;font-size:28px;font-weight:700;color:#1A1208;margin-bottom:8px;">☀️ Cleardays</div>
+            <div style="height:2px;background:#E05C1A;margin-bottom:32px;width:48px;"></div>
+            <p style="font-size:16px;color:#1A1208;margin-bottom:8px;">Your sign-in code is:</p>
+            <div style="font-size:48px;font-weight:700;color:#E05C1A;letter-spacing:12px;margin:20px 0;font-family:Georgia,serif;">${currentOTP}</div>
+            <p style="font-size:14px;color:#4A3728;margin-bottom:24px;">This code expires in 10 minutes. If you didn't request this, you can safely ignore this email.</p>
+            <div style="border-top:1px solid #E5D9C8;padding-top:20px;font-size:12px;color:#C9B99A;">Cleardays · The summer planner for busy parents</div>
+          </div>`
+      })
     });
 
-    if (error) {
-      err.textContent = 'Invalid or expired code. Please try again.';
-      err.classList.add('show');
-      otpInputs.forEach(i => { i.value = ''; i.classList.remove('filled'); });
-      otpInputs[0].focus();
-      btn.textContent = 'Verify & Sign In';
-      btn.disabled = false;
-    } else {
-      suc.textContent = '✅ Verified! Taking you to your dashboard…';
-      suc.classList.add('show');
-      setTimeout(() => { window.location.href = 'dashboard.html'; }, 800);
+    if (!res.ok) {
+      const errData = await res.json();
+      throw new Error(errData.message || 'Failed to send email');
     }
+
+    // Show step 2
+    document.getElementById('sentToEmail').textContent = email;
+    document.getElementById('step1').classList.remove('active');
+    document.getElementById('step2').classList.add('active');
+    otpInputs[0].focus();
+
+  } catch(e) {
+    document.getElementById('error1').textContent = 'Could not send code: ' + e.message;
+    document.getElementById('error1').classList.add('show');
+    btn.textContent = 'Send Code';
+    btn.disabled = false;
+  }
+}
+
+async function verifyOTP() {
+  const code = Array.from(otpInputs).map(i => i.value).join('');
+  const btn = document.getElementById('verifyBtn');
+  const err = document.getElementById('error2');
+  const suc = document.getElementById('success2');
+  err.classList.remove('show');
+  suc.classList.remove('show');
+
+  if (code.length < 6) {
+    err.textContent = 'Please enter all 6 digits.';
+    err.classList.add('show');
+    return;
   }
 
-  async function resendCode() {
-    const email = document.getElementById('emailInput').value.trim();
-    const suc = document.getElementById('success2');
-    const err = document.getElementById('error2');
-    err.classList.remove('show');
-    await sb.auth.signInWithOtp({ email, options: { shouldCreateUser: true } });
-    suc.textContent = '📬 New code sent! Check your inbox.';
-    suc.classList.add('show');
+  btn.textContent = 'Verifying…';
+  btn.disabled = true;
+
+  // Check OTP in Supabase
+  const { data, error } = await sb
+    .from('otp_codes')
+    .select('*')
+    .eq('email', currentEmail)
+    .eq('code', code)
+    .gt('expires_at', new Date().toISOString())
+    .single();
+
+  if (error || !data) {
+    err.textContent = 'Invalid or expired code. Please try again.';
+    err.classList.add('show');
     otpInputs.forEach(i => { i.value = ''; i.classList.remove('filled'); });
     otpInputs[0].focus();
+    btn.textContent = 'Verify & Sign In';
+    btn.disabled = false;
+    return;
   }
 
-  function goBack() {
-    document.getElementById('step2').classList.remove('active');
-    document.getElementById('step1').classList.add('active');
-    document.getElementById('error1').classList.remove('show');
-  }
-
-  document.getElementById('emailInput').addEventListener('keydown', e => {
-    if (e.key === 'Enter') sendOTP();
+  // Code is valid — sign in via Supabase magic link silently
+  // Use signInWithOtp to create/get the user session
+  const { error: signInError } = await sb.auth.signInWithOtp({
+    email: currentEmail,
+    options: { shouldCreateUser: true }
   });
+
+  // Delete used OTP
+  await sb.from('otp_codes').delete().eq('email', currentEmail);
+
+  suc.textContent = '✅ Verified! Taking you to your dashboard…';
+  suc.classList.add('show');
+
+  // Store verified email for dashboard to pick up
+  sessionStorage.setItem('verified_email', currentEmail);
+  setTimeout(() => { window.location.href = 'dashboard.html'; }, 800);
+}
+
+async function resendCode() {
+  const suc = document.getElementById('success2');
+  const err = document.getElementById('error2');
+  err.classList.remove('show');
+  otpInputs.forEach(i => { i.value = ''; i.classList.remove('filled'); });
+  document.getElementById('step2').classList.remove('active');
+  document.getElementById('step1').classList.add('active');
+  await sendOTP();
+}
+
+function goBack() {
+  document.getElementById('step2').classList.remove('active');
+  document.getElementById('step1').classList.add('active');
+  document.getElementById('error1').classList.remove('show');
+}
+
+document.getElementById('emailInput').addEventListener('keydown', e => {
+  if (e.key === 'Enter') sendOTP();
+});
 </script>
 </body>
 </html>
