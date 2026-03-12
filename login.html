@@ -109,7 +109,7 @@
 <script>
 const SUPABASE_URL = 'https://jtrbcorhnokokxtutmio.supabase.co';
 const SUPABASE_KEY = 'sb_publishable_8Ft91_p3MtwapHLoLWfDLA_ftrebeIb';
-const RESEND_KEY = 're_HPAhAyjy_HhadtEaU7MK9EfFVf7Zyd4h4';
+
 const { createClient } = supabase;
 const sb = createClient(SUPABASE_URL, SUPABASE_KEY);
 
@@ -180,33 +180,17 @@ async function sendOTP() {
   const expiry = new Date(Date.now() + 10 * 60 * 1000).toISOString();
   await sb.from('otp_codes').upsert({ email, code: currentOTP, expires_at: expiry }, { onConflict: 'email' });
 
-  // Send email via Resend API
+  // Send email via our Vercel serverless function
   try {
-    const res = await fetch('https://api.resend.com/emails', {
+    const res = await fetch('/api/send-otp', {
       method: 'POST',
-      headers: {
-        'Authorization': `Bearer ${RESEND_KEY}`,
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify({
-        from: 'Cleardays <onboarding@resend.dev>',
-        to: [email],
-        subject: `Your Cleardays sign-in code: ${currentOTP}`,
-        html: `
-          <div style="font-family:'Outfit',sans-serif;max-width:480px;margin:0 auto;padding:40px 20px;background:#FDFAF5;">
-            <div style="font-family:Georgia,serif;font-size:28px;font-weight:700;color:#1A1208;margin-bottom:8px;">☀️ Cleardays</div>
-            <div style="height:2px;background:#E05C1A;margin-bottom:32px;width:48px;"></div>
-            <p style="font-size:16px;color:#1A1208;margin-bottom:8px;">Your sign-in code is:</p>
-            <div style="font-size:48px;font-weight:700;color:#E05C1A;letter-spacing:12px;margin:20px 0;font-family:Georgia,serif;">${currentOTP}</div>
-            <p style="font-size:14px;color:#4A3728;margin-bottom:24px;">This code expires in 10 minutes. If you didn't request this, you can safely ignore this email.</p>
-            <div style="border-top:1px solid #E5D9C8;padding-top:20px;font-size:12px;color:#C9B99A;">Cleardays · The summer planner for busy parents</div>
-          </div>`
-      })
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email, code: currentOTP })
     });
 
     if (!res.ok) {
       const errData = await res.json();
-      throw new Error(errData.message || 'Failed to send email');
+      throw new Error(errData.error || 'Failed to send email');
     }
 
     // Show step 2
