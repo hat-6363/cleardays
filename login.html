@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -88,7 +89,7 @@
 
       <!-- STEP 1: EMAIL -->
       <div class="step active" id="step1">
-        <div class="card-icon">☀️</div>
+        <div class="card-icon">&#9728;&#65039;</div>
         <div class="card-title">Sign in</div>
         <p class="card-sub">Enter your email and we'll send a 6-digit code. No password needed.</p>
         <div class="step-indicator">
@@ -100,12 +101,12 @@
         <label class="form-label">Email address</label>
         <input class="form-input" type="email" id="emailInput" placeholder="you@example.com">
         <button class="btn" id="sendBtn" onclick="sendOTP()">Send Code</button>
-        <div class="back-link" style="margin-top:16px"><a href="index.html">← Back to Joydays</a></div>
+        <div class="back-link" style="margin-top:16px"><a href="index.html">&larr; Back to Joydays</a></div>
       </div>
 
       <!-- STEP 2: OTP -->
       <div class="step" id="step2">
-        <div class="card-icon">📬</div>
+        <div class="card-icon">&#128236;</div>
         <div class="card-title">Enter your code</div>
         <p class="card-sub">We sent a 6-digit code to:</p>
         <p class="sent-to"><strong id="sentToEmail"></strong></p>
@@ -125,7 +126,7 @@
           <input class="otp-input" maxlength="1" type="text" inputmode="numeric">
         </div>
         <button class="btn" id="verifyBtn" onclick="verifyOTP()">Verify &amp; Sign In</button>
-        <div class="resend-link">Didn't get it? <a onclick="resendCode()">Resend code</a> · <a onclick="goBack()">Change email</a></div>
+        <div class="resend-link">Didn't get it? <a onclick="resendCode()">Resend code</a> &middot; <a onclick="goBack()">Change email</a></div>
       </div>
 
     </div>
@@ -196,9 +197,8 @@
         return;
       }
 
-      btn.textContent = 'Sending…';
+      btn.textContent = 'Sending\u2026';
       btn.disabled = true;
-
       currentEmail = email;
       currentOTP = generateOTP();
 
@@ -208,11 +208,9 @@
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ email, code: currentOTP })
         });
-
         const data = await res.json();
         if (!res.ok) throw new Error(data.error || 'Failed to send code');
 
-        // Show step 2
         document.getElementById('sentToEmail').textContent = email;
         document.getElementById('step1').classList.remove('active');
         document.getElementById('step2').classList.add('active');
@@ -242,48 +240,35 @@
       if (code !== currentOTP) {
         err.textContent = 'Incorrect code. Please try again.';
         err.classList.add('show');
-        // Clear fields and refocus
         otpInputs.forEach(i => { i.value = ''; i.classList.remove('filled'); });
         otpInputs[0].focus();
         return;
       }
 
-      btn.textContent = 'Signing in…';
+      btn.textContent = 'Signing in\u2026';
       btn.disabled = true;
 
       try {
-        // Derived password: stable per email, never shown to user
         const derivedPassword = 'joydays_' + btoa(currentEmail).replace(/=/g, '') + '_2025';
 
-        // Try signing in first (returning user)
-        let { data, error } = await sb.auth.signInWithPassword({
+        // Step 1: Server upserts user with derived password (handles new + existing magic-link users)
+        const upsertRes = await fetch('/api/set-password', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ email: currentEmail, password: derivedPassword })
+        });
+        const upsertData = await upsertRes.json();
+        if (!upsertRes.ok) throw new Error(upsertData.error || 'Account setup failed');
+
+        // Step 2: Sign in with the now-guaranteed password
+        const { data, error } = await sb.auth.signInWithPassword({
           email: currentEmail,
           password: derivedPassword
         });
+        if (error) throw new Error(error.message);
+        if (!data.session) throw new Error('No session returned.');
 
-        // If sign-in fails (new user), create account then sign in
-        if (error) {
-          const signUpResult = await sb.auth.signUp({
-            email: currentEmail,
-            password: derivedPassword,
-            options: { data: { signed_up_via: 'otp' } }
-          });
-
-          if (signUpResult.error) throw new Error(signUpResult.error.message);
-
-          // Sign in immediately after signup
-          const signInResult = await sb.auth.signInWithPassword({
-            email: currentEmail,
-            password: derivedPassword
-          });
-
-          if (signInResult.error) throw new Error(signInResult.error.message);
-          data = signInResult.data;
-        }
-
-        if (!data.session) throw new Error('No session returned. Check Supabase email confirmation settings.');
-
-        suc.textContent = '✅ Verified! Taking you to your dashboard…';
+        suc.textContent = '\u2705 Verified! Taking you to your dashboard\u2026';
         suc.classList.add('show');
         setTimeout(() => { window.location.href = 'dashboard.html'; }, 800);
 
@@ -296,11 +281,9 @@
     }
 
     async function resendCode() {
-      // Reset OTP inputs
       otpInputs.forEach(i => { i.value = ''; i.classList.remove('filled'); });
       document.getElementById('error2').classList.remove('show');
       document.getElementById('success2').classList.remove('show');
-
       currentOTP = generateOTP();
 
       try {
@@ -311,7 +294,7 @@
         });
         if (!res.ok) throw new Error('Failed to resend');
         const suc = document.getElementById('success2');
-        suc.textContent = '📬 New code sent!';
+        suc.textContent = '\ud83d\udcec New code sent!';
         suc.classList.add('show');
         setTimeout(() => suc.classList.remove('show'), 3000);
         otpInputs[0].focus();
