@@ -4,7 +4,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Cleardays — Sign In</title>
+<title>Joydays — Sign In</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,600;0,700;1,400&family=Outfit:wght@300;400;500;600&display=swap" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
@@ -57,7 +57,7 @@
 </style>
 </head>
 <body>
-<nav><a href="index.html" class="logo">Clear<em>days</em></a></nav>
+<nav><a href="index.html" class="logo">Joy<em>days</em></a></nav>
 <div class="page">
   <div class="card">
 
@@ -75,7 +75,7 @@
       <label class="form-label">Email address</label>
       <input class="form-input" type="email" id="emailInput" placeholder="you@example.com">
       <button class="btn" id="sendBtn" onclick="sendOTP()">Send Code</button>
-      <div class="back-link" style="margin-top:16px"><a href="index.html">← Back to Cleardays</a></div>
+      <div class="back-link" style="margin-top:16px"><a href="index.html">← Back to Joydays</a></div>
     </div>
 
     <!-- STEP 2: OTP -->
@@ -243,22 +243,35 @@ async function verifyOTP() {
     return;
   }
 
-  // Code is valid — sign in via Supabase magic link silently
-  // Use signInWithOtp to create/get the user session
-  const { error: signInError } = await sb.auth.signInWithOtp({
+  // Code is valid — delete used OTP
+  await sb.from('otp_codes').delete().eq('email', currentEmail);
+
+  // Sign in with Supabase OTP (this time it just verifies, email already sent)
+  // Use admin-style sign in by generating a session via magic link verify
+  const { data: sessionData, error: signInError } = await sb.auth.signInWithOtp({
     email: currentEmail,
     options: { shouldCreateUser: true }
   });
 
-  // Delete used OTP
-  await sb.from('otp_codes').delete().eq('email', currentEmail);
-
-  suc.textContent = '✅ Verified! Taking you to your dashboard…';
+  suc.textContent = '✅ Verified! Sending you to your dashboard…';
   suc.classList.add('show');
 
-  // Store verified email for dashboard to pick up
-  sessionStorage.setItem('verified_email', currentEmail);
-  setTimeout(() => { window.location.href = 'dashboard.html'; }, 800);
+  // Poll for session establishment then redirect
+  let attempts = 0;
+  const checkSession = setInterval(async () => {
+    attempts++;
+    const { data } = await sb.auth.getSession();
+    if (data.session) {
+      clearInterval(checkSession);
+      window.location.href = 'dashboard.html';
+    } else if (attempts > 20) {
+      clearInterval(checkSession);
+      // Session didn't establish via Supabase — store verified state and redirect
+      // Dashboard will handle this gracefully
+      sessionStorage.setItem('otp_verified', currentEmail);
+      window.location.href = 'dashboard.html';
+    }
+  }, 300);
 }
 
 async function resendCode() {
