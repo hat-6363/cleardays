@@ -171,39 +171,25 @@ async function sendOTP() {
 
   btn.textContent = 'Sending…';
   btn.disabled = true;
-
-  // Generate code and store in Supabase otp_codes table
-  currentOTP = generateOTP();
   currentEmail = email;
 
-  // Store OTP in Supabase with 10min expiry
-  const expiry = new Date(Date.now() + 10 * 60 * 1000).toISOString();
-  await sb.from('otp_codes').upsert({ email, code: currentOTP, expires_at: expiry }, { onConflict: 'email' });
-
-  // Send email via our Vercel serverless function
   try {
-    const res = await fetch('/api/send-otp', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ email, code: currentOTP })
+    const { error } = await sb.auth.signInWithOtp({
+      email: email,
+      options: { shouldCreateUser: true }
     });
 
-    if (!res.ok) {
-      const errData = await res.json();
-      throw new Error(errData.error || 'Failed to send email');
-    }
+    if (error) throw new Error(error.message);
 
-    // Show step 2
-    document.getElementById('sentToEmail').textContent = email;
-    document.getElementById('step1').classList.remove('active');
-    document.getElementById('step2').classList.add('active');
+    document.getElementById('step1').style.display = 'none';
+    document.getElementById('step2').style.display = 'block';
     otpInputs[0].focus();
 
-  } catch(e) {
-    document.getElementById('error1').textContent = 'Could not send code: ' + e.message;
-    document.getElementById('error1').classList.add('show');
-    btn.textContent = 'Send Code';
+  } catch (e) {
+    err.textContent = 'Could not send code: ' + e.message;
+    err.classList.add('show');
     btn.disabled = false;
+    btn.textContent = 'Send Code';
   }
 }
 
@@ -224,75 +210,26 @@ async function verifyOTP() {
   btn.textContent = 'Verifying…';
   btn.disabled = true;
 
-  // Check OTP in Supabase
-  const { data, error } = await sb
-    .from('otp_codes')
-    .select('*')
-    .eq('email', currentEmail)
-    .eq('code', code)
-    .gt('expires_at', new Date().toISOString())
-    .single();
+  try {
+    const { data, error } = await sb.auth.verifyOtp({
+      email: currentEmail,
+      token: code,
+      type: 'email'
+    });
 
-  if (error || !data) {
+    if (error) throw new Error(error.message);
+
+    suc.textContent = '✅ Verified! Taking you to your dashboard…';
+    suc.classList.add('show');
+    setTimeout(() => { window.location.href = 'dashboard.html'; }, 800);
+
+  } catch (e) {
     err.textContent = 'Invalid or expired code. Please try again.';
     err.classList.add('show');
-    otpInputs.forEach(i => { i.value = ''; i.classList.remove('filled'); });
-    otpInputs[0].focus();
-    btn.textContent = 'Verify & Sign In';
     btn.disabled = false;
-    return;
+    btn.textContent = 'Verify Code';
   }
-
-  // Code is valid — delete used OTP
-  await sb.from('otp_codes').delete().eq('email', currentEmail);
-
-  // Sign in with Supabase OTP (this time it just verifies, email already sent)
-  // Use admin-style sign in by generating a session via magic link verify
-  const { data: sessionData, error: signInError } = await sb.auth.signInWithOtp({
-    email: currentEmail,
-    options: { shouldCreateUser: true }
-  });
-
-  suc.textContent = '✅ Verified! Sending you to your dashboard…';
-  suc.classList.add('show');
-
-  // Poll for session establishment then redirect
-  let attempts = 0;
-  const checkSession = setInterval(async () => {
-    attempts++;
-    const { data } = await sb.auth.getSession();
-    if (data.session) {
-      clearInterval(checkSession);
-      window.location.href = 'dashboard.html';
-    } else if (attempts > 20) {
-      clearInterval(checkSession);
-      // Session didn't establish via Supabase — store verified state and redirect
-      // Dashboard will handle this gracefully
-      sessionStorage.setItem('otp_verified', currentEmail);
-      window.location.href = 'dashboard.html';
-    }
-  }, 300);
 }
-
-async function resendCode() {
-  const suc = document.getElementById('success2');
-  const err = document.getElementById('error2');
-  err.classList.remove('show');
-  otpInputs.forEach(i => { i.value = ''; i.classList.remove('filled'); });
-  document.getElementById('step2').classList.remove('active');
-  document.getElementById('step1').classList.add('active');
-  await sendOTP();
-}
-
-function goBack() {
-  document.getElementById('step2').classList.remove('active');
-  document.getElementById('step1').classList.add('active');
-  document.getElementById('error1').classList.remove('show');
-}
-
-document.getElementById('emailInput').addEventListener('keydown', e => {
-  if (e.key === 'Enter') sendOTP();
-});
 </script>
 </body>
 </html>
