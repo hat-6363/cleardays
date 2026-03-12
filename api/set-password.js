@@ -26,7 +26,7 @@ export default async function handler(req, res) {
     const existingUser = listData.users?.[0];
 
     if (existingUser) {
-      // User exists — update their password
+      // User exists — update password and ensure email is confirmed
       const updateRes = await fetch(
         `${SUPABASE_URL}/auth/v1/admin/users/${existingUser.id}`,
         {
@@ -36,16 +36,19 @@ export default async function handler(req, res) {
             'apikey': SERVICE_KEY,
             'Content-Type': 'application/json',
           },
-          body: JSON.stringify({ password })
+          body: JSON.stringify({
+            password,
+            email_confirmed_at: new Date().toISOString(),
+          })
         }
       );
       if (!updateRes.ok) {
         const err = await updateRes.json();
-        return res.status(500).json({ error: err.message || 'Failed to update password' });
+        return res.status(500).json({ error: err.message || 'Failed to update user' });
       }
       return res.status(200).json({ status: 'updated' });
     } else {
-      // New user — create with password
+      // New user — create with password and pre-confirmed email
       const createRes = await fetch(
         `${SUPABASE_URL}/auth/v1/admin/users`,
         {
@@ -58,7 +61,7 @@ export default async function handler(req, res) {
           body: JSON.stringify({
             email,
             password,
-            email_confirm: true,
+            email_confirmed_at: new Date().toISOString(),
           })
         }
       );
