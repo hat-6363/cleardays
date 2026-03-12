@@ -1,0 +1,1311 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Cleardays — Summer Planner for Parents</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@500;700&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --cream: #FDF8F2;
+    --warm-white: #FFFCF8;
+    --sand: #F0E8D8;
+    --tan: #D4C4A8;
+    --brown: #8B6F4E;
+    --deep: #2C1810;
+    --accent: #E8622A;
+    --accent-light: #FFF0E8;
+    --accent-mid: #F4A06A;
+    --green: #4A7C59;
+    --green-light: #EAF2EC;
+    --blue: #2E6EA6;
+    --blue-light: #E8F2FA;
+    --purple: #7B5EA7;
+    --purple-light: #F3EFF8;
+    --yellow: #D4A017;
+    --yellow-light: #FDF6E3;
+    --red: #C0392B;
+    --red-light: #FDECEA;
+    --border: #E8DDD0;
+    --shadow: 0 2px 12px rgba(44,24,16,0.08);
+    --shadow-lg: 0 8px 32px rgba(44,24,16,0.12);
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    font-family: 'DM Sans', sans-serif;
+    background: var(--cream);
+    color: var(--deep);
+    min-height: 100vh;
+  }
+
+  /* HEADER */
+  header {
+    background: var(--deep);
+    padding: 0 32px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    height: 64px;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+  }
+
+  .logo {
+    font-family: 'Playfair Display', serif;
+    font-size: 24px;
+    color: var(--cream);
+    letter-spacing: -0.5px;
+  }
+
+  .logo span { color: var(--accent-mid); }
+
+  .header-right {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+  }
+
+  .family-selector {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    background: rgba(255,255,255,0.08);
+    border: 1px solid rgba(255,255,255,0.15);
+    border-radius: 8px;
+    padding: 6px 12px;
+    color: var(--cream);
+    font-size: 14px;
+    cursor: pointer;
+  }
+
+  .avatar {
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 11px;
+    font-weight: 600;
+    color: white;
+  }
+
+  .av-h { background: var(--accent); }
+  .av-m { background: var(--green); }
+
+  .btn-primary {
+    background: var(--accent);
+    color: white;
+    border: none;
+    border-radius: 8px;
+    padding: 8px 16px;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+
+  .btn-primary:hover { background: #d4551f; transform: translateY(-1px); }
+
+  /* LAYOUT */
+  .app-layout {
+    display: flex;
+    height: calc(100vh - 64px);
+  }
+
+  /* SIDEBAR */
+  .sidebar {
+    width: 260px;
+    background: var(--warm-white);
+    border-right: 1px solid var(--border);
+    display: flex;
+    flex-direction: column;
+    overflow-y: auto;
+    flex-shrink: 0;
+  }
+
+  .sidebar-section {
+    padding: 20px 20px 0;
+  }
+
+  .sidebar-label {
+    font-size: 10px;
+    font-weight: 600;
+    letter-spacing: 1.2px;
+    text-transform: uppercase;
+    color: var(--brown);
+    margin-bottom: 10px;
+  }
+
+  /* MONTH TABS */
+  .month-tabs {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+  }
+
+  .month-tab {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 8px 12px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 14px;
+    font-weight: 500;
+    transition: all 0.15s;
+    color: var(--deep);
+  }
+
+  .month-tab:hover { background: var(--sand); }
+  .month-tab.active { background: var(--accent-light); color: var(--accent); font-weight: 600; }
+
+  .month-tab .count {
+    background: var(--sand);
+    color: var(--brown);
+    border-radius: 12px;
+    padding: 1px 8px;
+    font-size: 11px;
+    font-weight: 600;
+  }
+
+  .month-tab.active .count { background: var(--accent); color: white; }
+
+  /* COST SUMMARY CARD */
+  .cost-card {
+    margin: 16px 20px;
+    background: var(--deep);
+    border-radius: 12px;
+    padding: 16px;
+    color: var(--cream);
+  }
+
+  .cost-card-title {
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    color: var(--tan);
+    margin-bottom: 12px;
+  }
+
+  .cost-total {
+    font-family: 'Playfair Display', serif;
+    font-size: 32px;
+    font-weight: 700;
+    color: white;
+    line-height: 1;
+    margin-bottom: 4px;
+  }
+
+  .cost-subtitle { font-size: 12px; color: var(--tan); margin-bottom: 14px; }
+
+  .cost-bar-bg {
+    background: rgba(255,255,255,0.1);
+    border-radius: 4px;
+    height: 6px;
+    margin-bottom: 8px;
+  }
+
+  .cost-bar-fill {
+    background: var(--accent-mid);
+    border-radius: 4px;
+    height: 6px;
+    width: 62%;
+    transition: width 0.6s ease;
+  }
+
+  .cost-breakdown {
+    display: flex;
+    justify-content: space-between;
+    font-size: 11px;
+  }
+
+  .cost-paid { color: var(--accent-mid); font-weight: 600; }
+  .cost-unpaid { color: rgba(255,255,255,0.5); }
+
+  /* TRANSPORT QUICK VIEW */
+  .transport-card {
+    margin: 0 20px 16px;
+    background: var(--sand);
+    border-radius: 12px;
+    padding: 14px;
+  }
+
+  .transport-row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 5px 0;
+    font-size: 13px;
+    color: var(--deep);
+  }
+
+  .transport-row:not(:last-child) { border-bottom: 1px solid var(--border); margin-bottom: 4px; }
+
+  .transport-icon { font-size: 14px; width: 20px; }
+  .transport-name { flex: 1; font-weight: 500; }
+  .transport-badge {
+    background: white;
+    border-radius: 6px;
+    padding: 2px 8px;
+    font-size: 11px;
+    font-weight: 600;
+    color: var(--brown);
+  }
+
+  /* MAIN CONTENT */
+  .main {
+    flex: 1;
+    overflow-y: auto;
+    padding: 24px 28px;
+  }
+
+  .main-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 20px;
+  }
+
+  .main-title {
+    font-family: 'Playfair Display', serif;
+    font-size: 28px;
+    font-weight: 700;
+    color: var(--deep);
+  }
+
+  .main-subtitle { font-size: 14px; color: var(--brown); margin-top: 2px; }
+
+  .main-actions {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+  }
+
+  .btn-secondary {
+    background: white;
+    color: var(--deep);
+    border: 1.5px solid var(--border);
+    border-radius: 8px;
+    padding: 8px 14px;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 13px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.15s;
+  }
+
+  .btn-secondary:hover { border-color: var(--accent); color: var(--accent); }
+
+  /* WEEK HEADERS */
+  .week-block {
+    margin-bottom: 24px;
+  }
+
+  .week-label {
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    color: var(--brown);
+    padding: 0 4px;
+    margin-bottom: 8px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .week-label::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: var(--border);
+  }
+
+  /* DAY ROWS */
+  .day-row {
+    display: grid;
+    grid-template-columns: 90px 100px 1fr 130px 90px 80px;
+    gap: 0;
+    align-items: stretch;
+    background: white;
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    margin-bottom: 6px;
+    transition: all 0.15s;
+    overflow: hidden;
+  }
+
+  .day-row:hover { border-color: var(--accent-mid); box-shadow: var(--shadow); }
+  .day-row.has-activity { border-left: 3px solid var(--accent-mid); }
+  .day-row.weekend { background: var(--warm-white); }
+  .day-row.holiday { background: var(--yellow-light); border-color: var(--yellow); }
+
+  .day-cell {
+    padding: 10px 12px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    border-right: 1px solid var(--border);
+    font-size: 13px;
+  }
+
+  .day-cell:last-child { border-right: none; }
+
+  .day-date { font-weight: 700; font-size: 14px; color: var(--deep); }
+  .day-name { font-size: 11px; color: var(--brown); font-weight: 500; }
+
+  .time-cell { color: var(--brown); font-size: 12px; }
+
+  /* ACTIVITY CELL */
+  .activity-cell {
+    padding: 8px 12px;
+    border-right: 1px solid var(--border);
+  }
+
+  .activity-name {
+    font-weight: 600;
+    font-size: 13px;
+    color: var(--deep);
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+
+  .activity-location {
+    font-size: 11px;
+    color: var(--brown);
+    margin-top: 2px;
+  }
+
+  .activity-tags {
+    display: flex;
+    gap: 4px;
+    margin-top: 5px;
+    flex-wrap: wrap;
+  }
+
+  .tag {
+    font-size: 10px;
+    font-weight: 600;
+    padding: 2px 7px;
+    border-radius: 4px;
+    letter-spacing: 0.3px;
+  }
+
+  .tag-sport { background: var(--green-light); color: var(--green); }
+  .tag-science { background: var(--blue-light); color: var(--blue); }
+  .tag-arts { background: var(--purple-light); color: var(--purple); }
+  .tag-social { background: var(--yellow-light); color: var(--yellow); }
+  .tag-free { background: var(--green-light); color: var(--green); }
+
+  /* TRANSPORT CELL */
+  .transport-cell {
+    padding: 8px 10px;
+    border-right: 1px solid var(--border);
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    justify-content: center;
+  }
+
+  .transport-mini {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    font-size: 11px;
+  }
+
+  .transport-mini .av-small {
+    width: 18px;
+    height: 18px;
+    border-radius: 50%;
+    font-size: 9px;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    flex-shrink: 0;
+  }
+
+  .transport-mini .label { color: var(--brown); font-size: 10px; }
+
+  /* COST CELL */
+  .cost-cell {
+    padding: 8px 10px;
+    border-right: 1px solid var(--border);
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    justify-content: center;
+  }
+
+  .cost-amount { font-weight: 700; font-size: 14px; color: var(--deep); }
+  .cost-free { font-size: 12px; color: var(--green); font-weight: 600; }
+
+  /* PAY STATUS */
+  .status-cell {
+    padding: 8px 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .status-badge {
+    font-size: 11px;
+    font-weight: 700;
+    padding: 4px 10px;
+    border-radius: 20px;
+    letter-spacing: 0.3px;
+  }
+
+  .status-paid { background: var(--green-light); color: var(--green); }
+  .status-unpaid { background: var(--yellow-light); color: var(--yellow); }
+  .status-booked { background: var(--blue-light); color: var(--blue); }
+  .status-empty { background: var(--sand); color: var(--tan); }
+
+  /* EMPTY DAY */
+  .empty-activity {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    color: var(--tan);
+    font-size: 13px;
+    cursor: pointer;
+    padding: 4px 0;
+  }
+
+  .empty-activity:hover { color: var(--accent); }
+
+  .add-btn {
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    background: var(--sand);
+    border: none;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    font-size: 14px;
+    color: var(--brown);
+    transition: all 0.15s;
+    flex-shrink: 0;
+  }
+
+  .add-btn:hover { background: var(--accent); color: white; }
+
+  /* HOLIDAY ROW */
+  .holiday-content {
+    grid-column: 2 / -1;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 12px;
+    font-weight: 600;
+    font-size: 14px;
+    color: var(--yellow);
+  }
+
+  /* SEARCH PANEL */
+  .search-panel {
+    width: 320px;
+    background: white;
+    border-left: 1px solid var(--border);
+    display: flex;
+    flex-direction: column;
+    flex-shrink: 0;
+  }
+
+  .search-header {
+    padding: 20px;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .search-title {
+    font-family: 'Playfair Display', serif;
+    font-size: 18px;
+    font-weight: 700;
+    margin-bottom: 12px;
+  }
+
+  .search-input-wrap {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+    background: var(--cream);
+    border: 1.5px solid var(--border);
+    border-radius: 10px;
+    padding: 8px 12px;
+    transition: border-color 0.15s;
+  }
+
+  .search-input-wrap:focus-within { border-color: var(--accent); }
+
+  .search-input {
+    border: none;
+    background: none;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 13px;
+    color: var(--deep);
+    flex: 1;
+    outline: none;
+  }
+
+  .search-input::placeholder { color: var(--tan); }
+
+  /* FILTER CHIPS */
+  .filter-chips {
+    padding: 12px 20px;
+    display: flex;
+    gap: 6px;
+    flex-wrap: wrap;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .chip {
+    font-size: 11px;
+    font-weight: 600;
+    padding: 5px 10px;
+    border-radius: 20px;
+    cursor: pointer;
+    border: 1.5px solid var(--border);
+    background: white;
+    color: var(--brown);
+    transition: all 0.15s;
+  }
+
+  .chip:hover { border-color: var(--accent-mid); color: var(--accent); }
+  .chip.active { background: var(--accent); border-color: var(--accent); color: white; }
+
+  /* ACTIVITY CARDS */
+  .activity-list {
+    flex: 1;
+    overflow-y: auto;
+    padding: 12px 16px;
+  }
+
+  .activity-card {
+    border: 1.5px solid var(--border);
+    border-radius: 10px;
+    padding: 12px;
+    margin-bottom: 10px;
+    cursor: pointer;
+    transition: all 0.15s;
+    background: white;
+  }
+
+  .activity-card:hover { border-color: var(--accent-mid); box-shadow: var(--shadow); transform: translateY(-1px); }
+
+  .ac-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 6px;
+  }
+
+  .ac-name {
+    font-weight: 600;
+    font-size: 13px;
+    color: var(--deep);
+    flex: 1;
+    padding-right: 8px;
+  }
+
+  .ac-price {
+    font-weight: 700;
+    font-size: 13px;
+    color: var(--accent);
+    white-space: nowrap;
+  }
+
+  .ac-org { font-size: 11px; color: var(--brown); margin-bottom: 6px; }
+
+  .ac-meta {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+    flex-wrap: wrap;
+  }
+
+  .ac-meta span {
+    font-size: 11px;
+    color: var(--brown);
+    display: flex;
+    align-items: center;
+    gap: 3px;
+  }
+
+  .ac-footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 8px;
+    padding-top: 8px;
+    border-top: 1px solid var(--border);
+  }
+
+  .btn-add-activity {
+    background: var(--accent-light);
+    color: var(--accent);
+    border: none;
+    border-radius: 6px;
+    padding: 5px 12px;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 12px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.15s;
+  }
+
+  .btn-add-activity:hover { background: var(--accent); color: white; }
+
+  .affiliate-badge {
+    font-size: 10px;
+    background: var(--yellow-light);
+    color: var(--yellow);
+    border-radius: 4px;
+    padding: 2px 6px;
+    font-weight: 600;
+  }
+
+  /* MODAL */
+  .modal-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(44,24,16,0.5);
+    z-index: 200;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    backdrop-filter: blur(4px);
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.2s;
+  }
+
+  .modal-overlay.open { opacity: 1; pointer-events: all; }
+
+  .modal {
+    background: white;
+    border-radius: 16px;
+    padding: 28px;
+    width: 520px;
+    max-width: 90vw;
+    box-shadow: var(--shadow-lg);
+    transform: translateY(12px);
+    transition: transform 0.2s;
+  }
+
+  .modal-overlay.open .modal { transform: translateY(0); }
+
+  .modal-title {
+    font-family: 'Playfair Display', serif;
+    font-size: 20px;
+    font-weight: 700;
+    margin-bottom: 20px;
+    color: var(--deep);
+  }
+
+  .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+  .form-full { grid-column: 1 / -1; }
+
+  .form-label {
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.8px;
+    text-transform: uppercase;
+    color: var(--brown);
+    margin-bottom: 5px;
+    display: block;
+  }
+
+  .form-input, .form-select {
+    width: 100%;
+    border: 1.5px solid var(--border);
+    border-radius: 8px;
+    padding: 8px 12px;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 13px;
+    color: var(--deep);
+    background: white;
+    outline: none;
+    transition: border-color 0.15s;
+  }
+
+  .form-input:focus, .form-select:focus { border-color: var(--accent); }
+
+  .modal-footer {
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+    margin-top: 20px;
+    padding-top: 16px;
+    border-top: 1px solid var(--border);
+  }
+
+  /* STATS BAR */
+  .stats-bar {
+    display: flex;
+    gap: 16px;
+    margin-bottom: 20px;
+  }
+
+  .stat-chip {
+    background: white;
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 10px 14px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 13px;
+    flex: 1;
+  }
+
+  .stat-icon { font-size: 18px; }
+  .stat-val { font-weight: 700; font-size: 18px; color: var(--deep); }
+  .stat-lbl { font-size: 11px; color: var(--brown); }
+
+  /* SCROLLBAR */
+  ::-webkit-scrollbar { width: 6px; }
+  ::-webkit-scrollbar-track { background: transparent; }
+  ::-webkit-scrollbar-thumb { background: var(--tan); border-radius: 3px; }
+
+  /* ANIMATIONS */
+  @keyframes fadeIn {
+    from { opacity: 0; transform: translateY(8px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  .day-row { animation: fadeIn 0.3s ease both; }
+  .day-row:nth-child(1) { animation-delay: 0.02s; }
+  .day-row:nth-child(2) { animation-delay: 0.04s; }
+  .day-row:nth-child(3) { animation-delay: 0.06s; }
+  .day-row:nth-child(4) { animation-delay: 0.08s; }
+  .day-row:nth-child(5) { animation-delay: 0.10s; }
+
+  .toast {
+    position: fixed;
+    bottom: 24px;
+    right: 24px;
+    background: var(--deep);
+    color: white;
+    padding: 12px 18px;
+    border-radius: 10px;
+    font-size: 13px;
+    font-weight: 500;
+    z-index: 300;
+    transform: translateY(60px);
+    opacity: 0;
+    transition: all 0.3s;
+  }
+
+  .toast.show { transform: translateY(0); opacity: 1; }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="logo">Clear<span>days</span></div>
+  <div class="header-right">
+    <div class="family-selector">
+      <div class="avatar av-h">H</div>
+      <div class="avatar av-m">M</div>
+      <span style="margin-left:4px">Arth · Summer 2025</span>
+    </div>
+    <button class="btn-primary" onclick="openModal()">+ Add Activity</button>
+  </div>
+</header>
+
+<div class="app-layout">
+
+  <!-- SIDEBAR -->
+  <aside class="sidebar">
+    <div class="sidebar-section" style="padding-top:20px">
+      <div class="sidebar-label">Months</div>
+      <div class="month-tabs">
+        <div class="month-tab" onclick="setMonth(this,'April')">
+          <span>April</span><span class="count">3</span>
+        </div>
+        <div class="month-tab active" onclick="setMonth(this,'May')">
+          <span>May</span><span class="count">6</span>
+        </div>
+        <div class="month-tab" onclick="setMonth(this,'June')">
+          <span>June</span><span class="count">11</span>
+        </div>
+        <div class="month-tab" onclick="setMonth(this,'July')">
+          <span>July</span><span class="count">8</span>
+        </div>
+        <div class="month-tab" onclick="setMonth(this,'August')">
+          <span>August</span><span class="count">4</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="cost-card">
+      <div class="cost-card-title">Summer Budget</div>
+      <div class="cost-total">$1,847</div>
+      <div class="cost-subtitle">total planned spend</div>
+      <div class="cost-bar-bg"><div class="cost-bar-fill" id="costBar"></div></div>
+      <div class="cost-breakdown">
+        <span class="cost-paid">$1,143 paid</span>
+        <span class="cost-unpaid">$704 pending</span>
+      </div>
+    </div>
+
+    <div class="sidebar-section">
+      <div class="sidebar-label">Today's Transport</div>
+    </div>
+    <div class="transport-card">
+      <div class="transport-row">
+        <span class="transport-icon">🚗</span>
+        <span class="transport-name">Drop-off</span>
+        <span class="transport-badge">Mat</span>
+      </div>
+      <div class="transport-row">
+        <span class="transport-icon">🏠</span>
+        <span class="transport-name">Pick-up</span>
+        <span class="transport-badge">Hat</span>
+      </div>
+      <div style="margin-top:8px;font-size:11px;color:var(--brown)">
+        🎾 Tennis Camp · Brookhaven · 1:30PM
+      </div>
+    </div>
+
+    <div class="sidebar-section" style="margin-top:4px">
+      <div class="sidebar-label">Children</div>
+    </div>
+    <div style="padding:0 20px 20px">
+      <div style="display:flex;align-items:center;gap:10px;background:var(--accent-light);border-radius:10px;padding:10px 12px">
+        <div class="avatar av-h" style="width:32px;height:32px;font-size:13px">A</div>
+        <div>
+          <div style="font-weight:600;font-size:13px">Arth</div>
+          <div style="font-size:11px;color:var(--brown)">28 activities planned</div>
+        </div>
+      </div>
+    </div>
+  </aside>
+
+  <!-- MAIN PLANNER -->
+  <main class="main">
+    <div class="main-header">
+      <div>
+        <div class="main-title" id="monthTitle">May 2025</div>
+        <div class="main-subtitle">5 weeks · 28 school days · 6 activities planned</div>
+      </div>
+      <div class="main-actions">
+        <button class="btn-secondary" onclick="toggleSearch()">🔍 Find Camps</button>
+        <button class="btn-secondary">📤 Share with Mat</button>
+        <button class="btn-primary" onclick="openModal()">+ Add Activity</button>
+      </div>
+    </div>
+
+    <div class="stats-bar">
+      <div class="stat-chip">
+        <span class="stat-icon">🏕️</span>
+        <div><div class="stat-val">6</div><div class="stat-lbl">Activities</div></div>
+      </div>
+      <div class="stat-chip">
+        <span class="stat-icon">💰</span>
+        <div><div class="stat-val">$533</div><div class="stat-lbl">This Month</div></div>
+      </div>
+      <div class="stat-chip">
+        <span class="stat-icon">📅</span>
+        <div><div class="stat-val">9</div><div class="stat-lbl">Open Days</div></div>
+      </div>
+      <div class="stat-chip">
+        <span class="stat-icon">🚗</span>
+        <div><div class="stat-val">12</div><div class="stat-lbl">Pickups</div></div>
+      </div>
+    </div>
+
+    <!-- WEEK 1 -->
+    <div class="week-block">
+      <div class="week-label">Week of May 26</div>
+
+      <div class="day-row holiday">
+        <div class="day-cell">
+          <div class="day-date">5/26</div>
+          <div class="day-name">Monday</div>
+        </div>
+        <div class="holiday-content">🇺🇸 Memorial Day — No School</div>
+      </div>
+
+      <div class="day-row">
+        <div class="day-cell"><div class="day-date">5/27</div><div class="day-name">Tuesday</div></div>
+        <div class="day-cell time-cell">—</div>
+        <div class="activity-cell">
+          <div class="empty-activity" onclick="openModal()">
+            <button class="add-btn">+</button>
+            <span>Add an activity…</span>
+          </div>
+        </div>
+        <div class="transport-cell"></div>
+        <div class="cost-cell"></div>
+        <div class="status-cell"></div>
+      </div>
+
+      <div class="day-row has-activity">
+        <div class="day-cell"><div class="day-date">5/28</div><div class="day-name">Wed</div></div>
+        <div class="day-cell time-cell">8:00AM–<br>4:30PM</div>
+        <div class="activity-cell">
+          <div class="activity-name">🧗 Movement Climbing</div>
+          <div class="activity-location">📍 Movement Climbing Gym, Plano TX</div>
+          <div class="activity-tags">
+            <span class="tag tag-sport">Sport</span>
+          </div>
+        </div>
+        <div class="transport-cell">
+          <div class="transport-mini">
+            <div class="av-small av-h">H</div>
+            <span class="label">Drop</span>
+          </div>
+          <div class="transport-mini">
+            <div class="av-small av-m" style="background:var(--green)">M</div>
+            <span class="label">Pick up</span>
+          </div>
+        </div>
+        <div class="cost-cell"><span class="cost-amount">$379</span></div>
+        <div class="status-cell"><span class="status-badge status-paid">Paid</span></div>
+      </div>
+
+      <div class="day-row">
+        <div class="day-cell"><div class="day-date">5/29</div><div class="day-name">Thu</div></div>
+        <div class="day-cell time-cell">—</div>
+        <div class="activity-cell">
+          <div class="empty-activity" onclick="openModal()"><button class="add-btn">+</button><span>Add an activity…</span></div>
+        </div>
+        <div class="transport-cell"></div><div class="cost-cell"></div><div class="status-cell"></div>
+      </div>
+
+      <div class="day-row">
+        <div class="day-cell"><div class="day-date">5/30</div><div class="day-name">Friday</div></div>
+        <div class="day-cell time-cell">—</div>
+        <div class="activity-cell">
+          <div class="empty-activity" onclick="openModal()"><button class="add-btn">+</button><span>Add an activity…</span></div>
+        </div>
+        <div class="transport-cell"></div><div class="cost-cell"></div><div class="status-cell"></div>
+      </div>
+
+      <div class="day-row weekend">
+        <div class="day-cell"><div class="day-date">5/31</div><div class="day-name">Saturday</div></div>
+        <div class="day-cell time-cell">8:00AM–<br>11:00AM</div>
+        <div class="activity-cell">
+          <div class="activity-name">🐴 Trail Ride: Katie Jackson</div>
+          <div class="activity-location">📍 Private — Katie's ranch</div>
+          <div class="activity-tags"><span class="tag tag-social">Social</span></div>
+        </div>
+        <div class="transport-cell">
+          <div class="transport-mini">
+            <div class="av-small av-h">H</div><span class="label">Both ways</span>
+          </div>
+        </div>
+        <div class="cost-cell"><span class="cost-free">Free</span></div>
+        <div class="status-cell"><span class="status-badge status-paid">No Cost</span></div>
+      </div>
+    </div>
+
+    <!-- WEEK 2 -->
+    <div class="week-block">
+      <div class="week-label">Week of June 2</div>
+
+      <div class="day-row has-activity">
+        <div class="day-cell"><div class="day-date">6/2</div><div class="day-name">Monday</div></div>
+        <div class="day-cell time-cell">1:30PM–<br>4:30PM</div>
+        <div class="activity-cell">
+          <div class="activity-name">🎾 Tennis Camp</div>
+          <div class="activity-location">📍 Brookhaven Country Club</div>
+          <div class="activity-tags">
+            <span class="tag tag-sport">Sport</span>
+          </div>
+        </div>
+        <div class="transport-cell">
+          <div class="transport-mini">
+            <div class="av-small av-m" style="background:var(--green)">M</div><span class="label">Drop</span>
+          </div>
+          <div class="transport-mini">
+            <div class="av-small av-h">H</div><span class="label">Pick up</span>
+          </div>
+        </div>
+        <div class="cost-cell"><span class="cost-amount">$185</span></div>
+        <div class="status-cell"><span class="status-badge status-booked">Booked</span></div>
+      </div>
+
+      <div class="day-row has-activity">
+        <div class="day-cell"><div class="day-date">6/3</div><div class="day-name">Tuesday</div></div>
+        <div class="day-cell time-cell">1:30PM–<br>4:30PM</div>
+        <div class="activity-cell">
+          <div class="activity-name">🎾 Tennis Camp</div>
+          <div class="activity-location">📍 Brookhaven Country Club</div>
+          <div class="activity-tags"><span class="tag tag-sport">Sport</span></div>
+        </div>
+        <div class="transport-cell">
+          <div class="transport-mini"><div class="av-small av-h">H</div><span class="label">Both ways</span></div>
+        </div>
+        <div class="cost-cell">—</div>
+        <div class="status-cell"><span class="status-badge status-booked">Booked</span></div>
+      </div>
+
+      <div class="day-row has-activity">
+        <div class="day-cell"><div class="day-date">6/9</div><div class="day-name">Monday</div></div>
+        <div class="day-cell time-cell">9:00AM–<br>3:00PM</div>
+        <div class="activity-cell">
+          <div class="activity-name">🚀 Destination Science: Galactic Space Academy</div>
+          <div class="activity-location">📍 Episcopal School of Dallas, 4100 Merrell Rd</div>
+          <div class="activity-tags">
+            <span class="tag tag-science">Science</span>
+          </div>
+        </div>
+        <div class="transport-cell">
+          <div class="transport-mini"><div class="av-small av-h">H</div><span class="label">Drop</span></div>
+          <div class="transport-mini"><div class="av-small av-m" style="background:var(--green)">M</div><span class="label">Pick up</span></div>
+        </div>
+        <div class="cost-cell"><span class="cost-amount">$369</span></div>
+        <div class="status-cell"><span class="status-badge status-unpaid">Unpaid</span></div>
+      </div>
+    </div>
+
+  </main>
+
+  <!-- SEARCH PANEL (hidden by default) -->
+  <aside class="search-panel" id="searchPanel" style="display:none">
+    <div class="search-header">
+      <div class="search-title">Find Camps & Activities</div>
+      <div class="search-input-wrap">
+        <span>📍</span>
+        <input class="search-input" placeholder="ZIP code (e.g. 75093)" id="zipInput">
+        <span style="font-size:12px;color:var(--brown)">DFW</span>
+      </div>
+    </div>
+
+    <div class="filter-chips">
+      <div class="chip active" onclick="toggleChip(this)">All</div>
+      <div class="chip" onclick="toggleChip(this)">🎾 Sport</div>
+      <div class="chip" onclick="toggleChip(this)">🔬 Science</div>
+      <div class="chip" onclick="toggleChip(this)">🎨 Arts</div>
+      <div class="chip" onclick="toggleChip(this)">💻 Tech</div>
+      <div class="chip" onclick="toggleChip(this)">🎭 Drama</div>
+    </div>
+
+    <div class="activity-list">
+      <div class="activity-card">
+        <div class="ac-header">
+          <div class="ac-name">🎾 Junior Tennis Academy — Summer Intensive</div>
+          <div class="ac-price">$320/wk</div>
+        </div>
+        <div class="ac-org">Dallas Tennis Association</div>
+        <div class="ac-meta">
+          <span>📍 2.1 mi away</span>
+          <span>⏰ 9AM–12PM</span>
+          <span>Ages 6–14</span>
+        </div>
+        <div class="ac-footer">
+          <span class="affiliate-badge">💰 Affiliate</span>
+          <button class="btn-add-activity" onclick="showToast('Tennis Academy added to planner!')">+ Add to Planner</button>
+        </div>
+      </div>
+
+      <div class="activity-card">
+        <div class="ac-header">
+          <div class="ac-name">🚀 iD Tech: Roblox Game Design</div>
+          <div class="ac-price">$449/wk</div>
+        </div>
+        <div class="ac-org">iD Tech Camps</div>
+        <div class="ac-meta">
+          <span>📍 SMU Campus</span>
+          <span>⏰ 9AM–3PM</span>
+          <span>Ages 7–12</span>
+        </div>
+        <div class="ac-footer">
+          <span class="affiliate-badge">💰 Affiliate</span>
+          <button class="btn-add-activity" onclick="showToast('iD Tech added to planner!')">+ Add to Planner</button>
+        </div>
+      </div>
+
+      <div class="activity-card">
+        <div class="ac-header">
+          <div class="ac-name">🔬 Destination Science: Mad Science Lab</div>
+          <div class="ac-price">$285/wk</div>
+        </div>
+        <div class="ac-org">Destination Science</div>
+        <div class="ac-meta">
+          <span>📍 4.8 mi away</span>
+          <span>⏰ 9AM–3PM</span>
+          <span>Ages 5–12</span>
+        </div>
+        <div class="ac-footer">
+          <span class="affiliate-badge">💰 Affiliate</span>
+          <button class="btn-add-activity" onclick="showToast('Destination Science added!')">+ Add to Planner</button>
+        </div>
+      </div>
+
+      <div class="activity-card">
+        <div class="ac-header">
+          <div class="ac-name">🎨 Young Artists Summer Studio</div>
+          <div class="ac-price">$195/wk</div>
+        </div>
+        <div class="ac-org">Plano Arts Center</div>
+        <div class="ac-meta">
+          <span>📍 1.3 mi away</span>
+          <span>⏰ 10AM–2PM</span>
+          <span>Ages 6–16</span>
+        </div>
+        <div class="ac-footer">
+          <button class="btn-add-activity" onclick="showToast('Arts Studio added to planner!')">+ Add to Planner</button>
+        </div>
+      </div>
+
+      <div class="activity-card">
+        <div class="ac-header">
+          <div class="ac-name">⚽ FC Dallas Youth Soccer Camp</div>
+          <div class="ac-price">$375/wk</div>
+        </div>
+        <div class="ac-org">FC Dallas Academy</div>
+        <div class="ac-meta">
+          <span>📍 Toyota Stadium</span>
+          <span>⏰ 8AM–12PM</span>
+          <span>Ages 5–15</span>
+        </div>
+        <div class="ac-footer">
+          <span class="affiliate-badge">💰 Affiliate</span>
+          <button class="btn-add-activity" onclick="showToast('FC Dallas Camp added!')">+ Add to Planner</button>
+        </div>
+      </div>
+    </div>
+  </aside>
+
+</div>
+
+<!-- ADD ACTIVITY MODAL -->
+<div class="modal-overlay" id="modalOverlay" onclick="handleOverlayClick(event)">
+  <div class="modal">
+    <div class="modal-title">Add Activity</div>
+    <div class="form-grid">
+      <div class="form-full">
+        <label class="form-label">Activity Name</label>
+        <input class="form-input" placeholder="e.g. Tennis Camp, Go Kart Session…">
+      </div>
+      <div>
+        <label class="form-label">Date</label>
+        <input class="form-input" type="date">
+      </div>
+      <div>
+        <label class="form-label">Category</label>
+        <select class="form-select">
+          <option>🎾 Sport</option>
+          <option>🔬 Science</option>
+          <option>🎨 Arts</option>
+          <option>💻 Tech</option>
+          <option>🐴 Outdoor</option>
+          <option>👥 Social / Playdate</option>
+        </select>
+      </div>
+      <div>
+        <label class="form-label">Start Time</label>
+        <input class="form-input" type="time">
+      </div>
+      <div>
+        <label class="form-label">End Time</label>
+        <input class="form-input" type="time">
+      </div>
+      <div class="form-full">
+        <label class="form-label">Location</label>
+        <input class="form-input" placeholder="e.g. Brookhaven Country Club, Plano TX">
+      </div>
+      <div>
+        <label class="form-label">Cost ($)</label>
+        <input class="form-input" type="number" placeholder="0">
+      </div>
+      <div>
+        <label class="form-label">Pay Status</label>
+        <select class="form-select">
+          <option>Paid</option>
+          <option>Booked, Unpaid</option>
+          <option>No Cost</option>
+          <option>Pending</option>
+        </select>
+      </div>
+      <div>
+        <label class="form-label">Drop-off</label>
+        <select class="form-select">
+          <option>Hat</option>
+          <option>Mat</option>
+          <option>Both (Fam)</option>
+          <option>Carpool</option>
+        </select>
+      </div>
+      <div>
+        <label class="form-label">Pick-up</label>
+        <select class="form-select">
+          <option>Hat</option>
+          <option>Mat</option>
+          <option>Both (Fam)</option>
+          <option>Carpool</option>
+        </select>
+      </div>
+      <div class="form-full">
+        <label class="form-label">Materials / Equipment Needed</label>
+        <input class="form-input" placeholder="e.g. Tennis Racket, Shoes, Snacks, Water">
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn-secondary" onclick="closeModal()">Cancel</button>
+      <button class="btn-primary" onclick="saveActivity()">Save Activity</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+  function setMonth(el, name) {
+    document.querySelectorAll('.month-tab').forEach(t => t.classList.remove('active'));
+    el.classList.add('active');
+    document.getElementById('monthTitle').textContent = name + ' 2025';
+  }
+
+  function toggleSearch() {
+    const panel = document.getElementById('searchPanel');
+    panel.style.display = panel.style.display === 'none' ? 'flex' : 'none';
+    panel.style.flexDirection = 'column';
+  }
+
+  function toggleChip(el) {
+    document.querySelectorAll('.chip').forEach(c => c.classList.remove('active'));
+    el.classList.add('active');
+  }
+
+  function openModal() {
+    document.getElementById('modalOverlay').classList.add('open');
+  }
+
+  function closeModal() {
+    document.getElementById('modalOverlay').classList.remove('open');
+  }
+
+  function handleOverlayClick(e) {
+    if (e.target === document.getElementById('modalOverlay')) closeModal();
+  }
+
+  function saveActivity() {
+    closeModal();
+    showToast('✅ Activity saved to your planner!');
+  }
+
+  function showToast(msg) {
+    const t = document.getElementById('toast');
+    t.textContent = msg;
+    t.classList.add('show');
+    setTimeout(() => t.classList.remove('show'), 3000);
+  }
+</script>
+</body>
+</html>

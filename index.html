@@ -1,0 +1,1145 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Cleardays — The Summer Planner for Busy Parents</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;0,700;1,400;1,600&family=Outfit:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --ink: #1A1208;
+    --ink-soft: #4A3728;
+    --cream: #FDFAF5;
+    --warm: #F7F1E8;
+    --sand: #EDE3D4;
+    --tan: #C9B99A;
+    --orange: #E05C1A;
+    --orange-light: #FFF3EC;
+    --orange-mid: #F4935A;
+    --gold: #C8900A;
+    --gold-light: #FEF7E6;
+    --green: #3D6B4A;
+    --green-light: #EBF2ED;
+    --border: #E5D9C8;
+    --shadow: 0 4px 24px rgba(26,18,8,0.08);
+    --shadow-lg: 0 12px 48px rgba(26,18,8,0.14);
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  html { scroll-behavior: smooth; }
+
+  body {
+    font-family: 'Outfit', sans-serif;
+    background: var(--cream);
+    color: var(--ink);
+    overflow-x: hidden;
+  }
+
+  /* ── NAV ── */
+  nav {
+    position: fixed;
+    top: 0; left: 0; right: 0;
+    z-index: 100;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 48px;
+    height: 68px;
+    background: rgba(253,250,245,0.92);
+    backdrop-filter: blur(12px);
+    border-bottom: 1px solid var(--border);
+  }
+
+  .nav-logo {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 26px;
+    font-weight: 700;
+    color: var(--ink);
+    letter-spacing: -0.5px;
+  }
+
+  .nav-logo em { color: var(--orange); font-style: normal; }
+
+  .nav-links {
+    display: flex;
+    align-items: center;
+    gap: 32px;
+    list-style: none;
+  }
+
+  .nav-links a {
+    text-decoration: none;
+    font-size: 14px;
+    font-weight: 500;
+    color: var(--ink-soft);
+    transition: color 0.2s;
+  }
+
+  .nav-links a:hover { color: var(--orange); }
+
+  .nav-cta {
+    background: var(--ink);
+    color: var(--cream) !important;
+    padding: 9px 20px;
+    border-radius: 8px;
+    font-weight: 600 !important;
+    transition: background 0.2s !important;
+  }
+
+  .nav-cta:hover { background: var(--orange) !important; color: white !important; }
+
+  /* ── HERO ── */
+  .hero {
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    padding: 120px 24px 80px;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .hero-bg {
+    position: absolute;
+    inset: 0;
+    background:
+      radial-gradient(ellipse 80% 60% at 50% -10%, rgba(224,92,26,0.10) 0%, transparent 70%),
+      radial-gradient(ellipse 60% 40% at 80% 80%, rgba(200,144,10,0.07) 0%, transparent 60%),
+      radial-gradient(ellipse 50% 50% at 10% 90%, rgba(61,107,74,0.05) 0%, transparent 60%);
+    pointer-events: none;
+  }
+
+  /* Decorative floating shapes */
+  .hero-shape {
+    position: absolute;
+    border-radius: 50%;
+    pointer-events: none;
+    opacity: 0.06;
+  }
+
+  .hero-shape-1 {
+    width: 500px; height: 500px;
+    background: var(--orange);
+    top: -100px; right: -100px;
+    animation: float1 8s ease-in-out infinite;
+  }
+
+  .hero-shape-2 {
+    width: 300px; height: 300px;
+    background: var(--gold);
+    bottom: 0; left: -80px;
+    animation: float2 10s ease-in-out infinite;
+  }
+
+  @keyframes float1 {
+    0%, 100% { transform: translate(0,0) scale(1); }
+    50% { transform: translate(-20px, 20px) scale(1.05); }
+  }
+  @keyframes float2 {
+    0%, 100% { transform: translate(0,0); }
+    50% { transform: translate(15px, -15px); }
+  }
+
+  .hero-eyebrow {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    background: var(--gold-light);
+    border: 1px solid rgba(200,144,10,0.2);
+    color: var(--gold);
+    font-size: 12px;
+    font-weight: 600;
+    letter-spacing: 1.2px;
+    text-transform: uppercase;
+    padding: 6px 14px;
+    border-radius: 20px;
+    margin-bottom: 28px;
+    animation: fadeUp 0.6s ease both;
+  }
+
+  .hero-headline {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: clamp(52px, 7vw, 88px);
+    font-weight: 700;
+    line-height: 1.02;
+    letter-spacing: -1px;
+    color: var(--ink);
+    max-width: 900px;
+    margin-bottom: 24px;
+    animation: fadeUp 0.6s 0.1s ease both;
+  }
+
+  .hero-headline em {
+    font-style: italic;
+    color: var(--orange);
+  }
+
+  .hero-sub {
+    font-size: 18px;
+    font-weight: 400;
+    color: var(--ink-soft);
+    max-width: 520px;
+    line-height: 1.6;
+    margin-bottom: 44px;
+    animation: fadeUp 0.6s 0.2s ease both;
+  }
+
+  .hero-form {
+    display: flex;
+    gap: 10px;
+    max-width: 460px;
+    width: 100%;
+    animation: fadeUp 0.6s 0.3s ease both;
+  }
+
+  .hero-input {
+    flex: 1;
+    border: 1.5px solid var(--border);
+    border-radius: 10px;
+    padding: 14px 18px;
+    font-family: 'Outfit', sans-serif;
+    font-size: 15px;
+    color: var(--ink);
+    background: white;
+    outline: none;
+    transition: border-color 0.2s, box-shadow 0.2s;
+  }
+
+  .hero-input:focus {
+    border-color: var(--orange);
+    box-shadow: 0 0 0 3px rgba(224,92,26,0.1);
+  }
+
+  .hero-input::placeholder { color: var(--tan); }
+
+  .btn-hero {
+    background: var(--orange);
+    color: white;
+    border: none;
+    border-radius: 10px;
+    padding: 14px 24px;
+    font-family: 'Outfit', sans-serif;
+    font-size: 15px;
+    font-weight: 600;
+    cursor: pointer;
+    white-space: nowrap;
+    transition: all 0.2s;
+    box-shadow: 0 4px 16px rgba(224,92,26,0.3);
+  }
+
+  .btn-hero:hover {
+    background: #c44d12;
+    transform: translateY(-2px);
+    box-shadow: 0 8px 24px rgba(224,92,26,0.35);
+  }
+
+  .hero-note {
+    font-size: 12px;
+    color: var(--tan);
+    margin-top: 12px;
+    animation: fadeUp 0.6s 0.4s ease both;
+  }
+
+  .hero-social {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-top: 48px;
+    animation: fadeUp 0.6s 0.5s ease both;
+  }
+
+  .hero-avatars {
+    display: flex;
+  }
+
+  .hero-av {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    border: 2px solid white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 12px;
+    font-weight: 700;
+    color: white;
+    margin-left: -8px;
+  }
+
+  .hero-av:first-child { margin-left: 0; }
+
+  .hero-social-text {
+    font-size: 13px;
+    color: var(--ink-soft);
+  }
+
+  .hero-social-text strong { color: var(--ink); }
+
+  /* ── PAIN SECTION ── */
+  .pain {
+    background: var(--ink);
+    padding: 100px 48px;
+    text-align: center;
+  }
+
+  .pain-eyebrow {
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: var(--orange-mid);
+    margin-bottom: 16px;
+  }
+
+  .pain-headline {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: clamp(36px, 4vw, 52px);
+    font-weight: 600;
+    color: white;
+    max-width: 700px;
+    margin: 0 auto 60px;
+    line-height: 1.2;
+  }
+
+  .pain-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 2px;
+    max-width: 900px;
+    margin: 0 auto;
+  }
+
+  .pain-card {
+    background: rgba(255,255,255,0.04);
+    border: 1px solid rgba(255,255,255,0.08);
+    padding: 36px 28px;
+    text-align: left;
+    transition: background 0.2s;
+  }
+
+  .pain-card:first-child { border-radius: 12px 0 0 12px; }
+  .pain-card:last-child { border-radius: 0 12px 12px 0; }
+  .pain-card:hover { background: rgba(255,255,255,0.07); }
+
+  .pain-icon { font-size: 28px; margin-bottom: 16px; }
+
+  .pain-title {
+    font-size: 16px;
+    font-weight: 600;
+    color: white;
+    margin-bottom: 10px;
+  }
+
+  .pain-desc {
+    font-size: 14px;
+    color: rgba(255,255,255,0.5);
+    line-height: 1.7;
+  }
+
+  /* ── HOW IT WORKS ── */
+  .how {
+    padding: 100px 48px;
+    background: var(--warm);
+  }
+
+  .section-label {
+    text-align: center;
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: var(--orange);
+    margin-bottom: 14px;
+  }
+
+  .section-title {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: clamp(36px, 4vw, 52px);
+    font-weight: 700;
+    text-align: center;
+    color: var(--ink);
+    margin-bottom: 64px;
+    line-height: 1.15;
+  }
+
+  .steps {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 40px;
+    max-width: 900px;
+    margin: 0 auto;
+    position: relative;
+  }
+
+  .steps::before {
+    content: '';
+    position: absolute;
+    top: 28px;
+    left: calc(16.6% + 16px);
+    right: calc(16.6% + 16px);
+    height: 1px;
+    background: var(--border);
+  }
+
+  .step { text-align: center; position: relative; }
+
+  .step-num {
+    width: 56px;
+    height: 56px;
+    border-radius: 50%;
+    background: var(--orange);
+    color: white;
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 24px;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 20px;
+    position: relative;
+    z-index: 1;
+    box-shadow: 0 4px 16px rgba(224,92,26,0.25);
+  }
+
+  .step-title {
+    font-size: 17px;
+    font-weight: 600;
+    color: var(--ink);
+    margin-bottom: 10px;
+  }
+
+  .step-desc {
+    font-size: 14px;
+    color: var(--ink-soft);
+    line-height: 1.7;
+  }
+
+  /* ── FEATURES ── */
+  .features {
+    padding: 100px 48px;
+    background: var(--cream);
+  }
+
+  .features-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 24px;
+    max-width: 960px;
+    margin: 0 auto;
+  }
+
+  .feature-card {
+    background: white;
+    border: 1.5px solid var(--border);
+    border-radius: 16px;
+    padding: 36px;
+    transition: all 0.2s;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .feature-card::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 3px;
+    background: var(--orange);
+    transform: scaleX(0);
+    transition: transform 0.3s;
+    transform-origin: left;
+  }
+
+  .feature-card:hover { border-color: var(--orange-mid); box-shadow: var(--shadow); }
+  .feature-card:hover::before { transform: scaleX(1); }
+
+  .feature-icon {
+    font-size: 32px;
+    margin-bottom: 16px;
+  }
+
+  .feature-title {
+    font-size: 18px;
+    font-weight: 600;
+    color: var(--ink);
+    margin-bottom: 10px;
+  }
+
+  .feature-desc {
+    font-size: 14px;
+    color: var(--ink-soft);
+    line-height: 1.7;
+    margin-bottom: 16px;
+  }
+
+  .feature-bullets {
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+  }
+
+  .feature-bullets li {
+    font-size: 13px;
+    color: var(--ink-soft);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .feature-bullets li::before {
+    content: '✓';
+    color: var(--green);
+    font-weight: 700;
+    font-size: 13px;
+    flex-shrink: 0;
+  }
+
+  /* ── PRICING ── */
+  .pricing {
+    padding: 100px 48px;
+    background: var(--warm);
+    text-align: center;
+  }
+
+  .pricing-card {
+    background: white;
+    border: 2px solid var(--border);
+    border-radius: 24px;
+    padding: 52px 48px;
+    max-width: 480px;
+    margin: 0 auto;
+    position: relative;
+    box-shadow: var(--shadow-lg);
+  }
+
+  .pricing-badge {
+    position: absolute;
+    top: -14px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: var(--orange);
+    color: white;
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: 0.5px;
+    padding: 5px 16px;
+    border-radius: 20px;
+    white-space: nowrap;
+  }
+
+  .pricing-name {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 28px;
+    font-weight: 700;
+    color: var(--ink);
+    margin-bottom: 8px;
+  }
+
+  .pricing-desc {
+    font-size: 14px;
+    color: var(--ink-soft);
+    margin-bottom: 32px;
+  }
+
+  .pricing-amount {
+    display: flex;
+    align-items: flex-start;
+    justify-content: center;
+    gap: 4px;
+    margin-bottom: 8px;
+  }
+
+  .pricing-dollar {
+    font-size: 24px;
+    font-weight: 600;
+    color: var(--ink);
+    margin-top: 10px;
+  }
+
+  .pricing-number {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 80px;
+    font-weight: 700;
+    color: var(--ink);
+    line-height: 1;
+  }
+
+  .pricing-period {
+    font-size: 14px;
+    color: var(--tan);
+    margin-bottom: 36px;
+  }
+
+  .pricing-features {
+    list-style: none;
+    text-align: left;
+    margin-bottom: 36px;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+
+  .pricing-features li {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 14px;
+    color: var(--ink-soft);
+  }
+
+  .pricing-features li .check {
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    background: var(--green-light);
+    color: var(--green);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 11px;
+    font-weight: 700;
+    flex-shrink: 0;
+  }
+
+  .btn-pricing {
+    width: 100%;
+    background: var(--orange);
+    color: white;
+    border: none;
+    border-radius: 12px;
+    padding: 16px;
+    font-family: 'Outfit', sans-serif;
+    font-size: 16px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s;
+    box-shadow: 0 4px 20px rgba(224,92,26,0.3);
+  }
+
+  .btn-pricing:hover {
+    background: #c44d12;
+    transform: translateY(-2px);
+    box-shadow: 0 8px 28px rgba(224,92,26,0.4);
+  }
+
+  .pricing-guarantee {
+    font-size: 12px;
+    color: var(--tan);
+    margin-top: 16px;
+  }
+
+  /* ── TESTIMONIAL ── */
+  .testimonials {
+    padding: 100px 48px;
+    background: var(--cream);
+  }
+
+  .testimonials-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 20px;
+    max-width: 960px;
+    margin: 0 auto;
+  }
+
+  .testimonial-card {
+    background: white;
+    border: 1.5px solid var(--border);
+    border-radius: 16px;
+    padding: 28px;
+  }
+
+  .stars {
+    color: var(--gold);
+    font-size: 14px;
+    margin-bottom: 14px;
+  }
+
+  .testimonial-text {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 17px;
+    font-style: italic;
+    color: var(--ink);
+    line-height: 1.6;
+    margin-bottom: 20px;
+  }
+
+  .testimonial-author {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .t-av {
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 13px;
+    font-weight: 700;
+    color: white;
+    flex-shrink: 0;
+  }
+
+  .t-name { font-size: 13px; font-weight: 600; color: var(--ink); }
+  .t-detail { font-size: 12px; color: var(--tan); }
+
+  /* ── FINAL CTA ── */
+  .final-cta {
+    background: var(--ink);
+    padding: 120px 48px;
+    text-align: center;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .final-cta::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(ellipse 70% 70% at 50% 50%, rgba(224,92,26,0.12) 0%, transparent 70%);
+    pointer-events: none;
+  }
+
+  .final-headline {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: clamp(40px, 5vw, 64px);
+    font-weight: 700;
+    color: white;
+    max-width: 700px;
+    margin: 0 auto 20px;
+    line-height: 1.1;
+  }
+
+  .final-headline em { color: var(--orange-mid); font-style: italic; }
+
+  .final-sub {
+    font-size: 16px;
+    color: rgba(255,255,255,0.55);
+    margin-bottom: 44px;
+  }
+
+  .final-form {
+    display: flex;
+    gap: 10px;
+    max-width: 420px;
+    margin: 0 auto;
+  }
+
+  .final-input {
+    flex: 1;
+    border: 1.5px solid rgba(255,255,255,0.15);
+    border-radius: 10px;
+    padding: 14px 18px;
+    font-family: 'Outfit', sans-serif;
+    font-size: 15px;
+    color: white;
+    background: rgba(255,255,255,0.07);
+    outline: none;
+    transition: border-color 0.2s;
+  }
+
+  .final-input:focus { border-color: var(--orange-mid); }
+  .final-input::placeholder { color: rgba(255,255,255,0.3); }
+
+  /* ── FOOTER ── */
+  footer {
+    background: var(--ink);
+    border-top: 1px solid rgba(255,255,255,0.06);
+    padding: 32px 48px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  .footer-logo {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 20px;
+    font-weight: 700;
+    color: rgba(255,255,255,0.5);
+  }
+
+  .footer-logo em { color: var(--orange-mid); font-style: normal; }
+
+  .footer-copy {
+    font-size: 12px;
+    color: rgba(255,255,255,0.3);
+  }
+
+  /* ── ANIMATIONS ── */
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  .reveal {
+    opacity: 0;
+    transform: translateY(24px);
+    transition: opacity 0.6s ease, transform 0.6s ease;
+  }
+
+  .reveal.visible {
+    opacity: 1;
+    transform: translateY(0);
+  }
+
+  /* ── TOAST ── */
+  .toast {
+    position: fixed;
+    bottom: 28px;
+    left: 50%;
+    transform: translateX(-50%) translateY(60px);
+    background: var(--ink);
+    color: white;
+    padding: 14px 24px;
+    border-radius: 12px;
+    font-size: 14px;
+    font-weight: 500;
+    z-index: 999;
+    opacity: 0;
+    transition: all 0.35s cubic-bezier(0.34, 1.56, 0.64, 1);
+    border: 1px solid rgba(255,255,255,0.1);
+    white-space: nowrap;
+  }
+
+  .toast.show {
+    transform: translateX(-50%) translateY(0);
+    opacity: 1;
+  }
+
+  /* ── RESPONSIVE ── */
+  @media (max-width: 768px) {
+    nav { padding: 0 20px; }
+    .nav-links { display: none; }
+    .hero { padding: 100px 20px 60px; }
+    .hero-form { flex-direction: column; }
+    .pain { padding: 60px 20px; }
+    .pain-grid { grid-template-columns: 1fr; gap: 12px; }
+    .pain-card:first-child { border-radius: 12px 12px 0 0; }
+    .pain-card:last-child { border-radius: 0 0 12px 12px; }
+    .how, .features, .pricing, .testimonials, .final-cta { padding: 60px 20px; }
+    .steps { grid-template-columns: 1fr; gap: 32px; }
+    .steps::before { display: none; }
+    .features-grid { grid-template-columns: 1fr; }
+    .testimonials-grid { grid-template-columns: 1fr; }
+    .final-form { flex-direction: column; }
+    footer { flex-direction: column; gap: 8px; text-align: center; }
+  }
+</style>
+<script src="https://js.stripe.com/v3/"></script>
+</head>
+<body>
+
+<!-- NAV -->
+<nav>
+  <div class="nav-logo">Clear<em>days</em></div>
+  <ul class="nav-links">
+    <li><a href="#how">How it works</a></li>
+    <li><a href="#features">Features</a></li>
+    <li><a href="#pricing">Pricing</a></li>
+    <li><a href="#pricing" class="nav-cta">Get Started — $29.99</a></li>
+  </ul>
+</nav>
+
+<!-- HERO -->
+<section class="hero">
+  <div class="hero-bg"></div>
+  <div class="hero-shape hero-shape-1"></div>
+  <div class="hero-shape hero-shape-2"></div>
+
+  <div class="hero-eyebrow">☀️ Summer 2025 — Now Open</div>
+
+  <h1 class="hero-headline">
+    Stop winging summer.<br>
+    Start <em>owning</em> it.
+  </h1>
+
+  <p class="hero-sub">
+    The all-in-one summer planner for parents — find camps, track costs, coordinate pickups, and fill every week with intention.
+  </p>
+
+  <div class="hero-form">
+    <input class="hero-input" type="email" placeholder="Enter your email address" id="heroEmail">
+    <button class="btn-hero" onclick="handleSignup()">Get Early Access</button>
+  </div>
+  <p class="hero-note">$29.99 for the full summer (April–August) · No subscription · Cancel anytime</p>
+
+  <div class="hero-social">
+    <div class="hero-avatars">
+      <div class="hero-av" style="background:#E05C1A">S</div>
+      <div class="hero-av" style="background:#3D6B4A">J</div>
+      <div class="hero-av" style="background:#C8900A">R</div>
+      <div class="hero-av" style="background:#7B5EA7">A</div>
+      <div class="hero-av" style="background:#2E6EA6">M</div>
+    </div>
+    <p class="hero-social-text"><strong>200+ DFW parents</strong> already on the waitlist</p>
+  </div>
+</section>
+
+<!-- PAIN -->
+<section class="pain">
+  <div class="pain-eyebrow">Sound familiar?</div>
+  <h2 class="pain-headline">Summer is supposed to be fun.<br>The planning shouldn't ruin it.</h2>
+
+  <div class="pain-grid">
+    <div class="pain-card reveal">
+      <div class="pain-icon">📋</div>
+      <div class="pain-title">"What's Luke doing next Tuesday?"</div>
+      <div class="pain-desc">You and your partner are running separate mental models of the summer. Half the plan lives in text threads, the other half in someone's head — and they never quite match.</div>
+    </div>
+    <div class="pain-card reveal">
+      <div class="pain-icon">🚗</div>
+      <div class="pain-title">"Are you dropping Rowan or am I?"</div>
+      <div class="pain-desc">The classic 3pm panic text. Pickups, drop-offs, and who's covering what get lost in the chaos of a busy week — and someone always ends up scrambling.</div>
+    </div>
+    <div class="pain-card reveal">
+      <div class="pain-icon">🤖</div>
+      <div class="pain-title">"I really want Isla to try robotics."</div>
+      <div class="pain-desc">You know the right experiences are out there — you just can't find them in time. The best camps fill up fast, and there's no single place to discover what's actually near you.</div>
+    </div>
+  </div>
+</section>
+
+<!-- HOW IT WORKS -->
+<section class="how" id="how">
+  <div class="section-label">Simple by design</div>
+  <h2 class="section-title">Your summer sorted in three steps</h2>
+
+  <div class="steps">
+    <div class="step reveal">
+      <div class="step-num">1</div>
+      <div class="step-title">Discover activities near you</div>
+      <div class="step-desc">Browse curated camps and activities by ZIP code. Filter by theme — sport, science, arts, tech, outdoor. Add to your planner in one click.</div>
+    </div>
+    <div class="step reveal">
+      <div class="step-num">2</div>
+      <div class="step-title">Build your summer calendar</div>
+      <div class="step-desc">Fill in your weeks, assign who's dropping off and picking up, track what's paid vs pending. See your whole summer at a glance.</div>
+    </div>
+    <div class="step reveal">
+      <div class="step-num">3</div>
+      <div class="step-title">Share with your co-parent</div>
+      <div class="step-desc">Invite your partner to the same plan. Everyone sees the same calendar, the same costs, the same logistics. No more crossed wires.</div>
+    </div>
+  </div>
+</section>
+
+<!-- FEATURES -->
+<section class="features" id="features">
+  <div class="section-label">What's included</div>
+  <h2 class="section-title">Everything you need.<br>Beautifully laid out.</h2>
+
+  <div class="features-grid">
+    <div class="feature-card reveal">
+      <div class="feature-icon">🗓️</div>
+      <div class="feature-title">Summer Planner</div>
+      <div class="feature-desc">A beautiful day-by-day calendar covering April through August. Built for the density of a real family's summer.</div>
+      <ul class="feature-bullets">
+        <li>Daily & weekly views</li>
+        <li>Time slots, locations, materials needed</li>
+        <li>Holiday & school day awareness</li>
+        <li>Multiple children supported</li>
+      </ul>
+    </div>
+
+    <div class="feature-card reveal">
+      <div class="feature-icon">🔍</div>
+      <div class="feature-title">Camp & Activity Finder</div>
+      <div class="feature-desc">Search hundreds of local camps and activities by ZIP code. Filter by theme, age group, duration, and cost.</div>
+      <ul class="feature-bullets">
+        <li>Sport, Science, Arts, Tech, Outdoor & more</li>
+        <li>Age-appropriate filtering</li>
+        <li>Add directly to your planner</li>
+        <li>New camps added weekly</li>
+      </ul>
+    </div>
+
+    <div class="feature-card reveal">
+      <div class="feature-icon">💰</div>
+      <div class="feature-title">Budget Tracker</div>
+      <div class="feature-desc">Finally know what your summer actually costs. Track every activity, see what's paid vs pending, and stay on budget.</div>
+      <ul class="feature-bullets">
+        <li>Per-activity cost tracking</li>
+        <li>Paid / Booked / Pending statuses</li>
+        <li>Running summer total</li>
+        <li>Monthly breakdown view</li>
+      </ul>
+    </div>
+
+    <div class="feature-card reveal">
+      <div class="feature-icon">🚗</div>
+      <div class="feature-title">Transport Coordinator</div>
+      <div class="feature-desc">Assign drop-off and pick-up for every activity. No more "I thought you were getting him" moments.</div>
+      <ul class="feature-bullets">
+        <li>Per-day transport assignments</li>
+        <li>Invite your co-parent to share access</li>
+        <li>Today's logistics summary on your dashboard</li>
+        <li>Carpool notes support</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<!-- PRICING -->
+<section class="pricing" id="pricing">
+  <div class="section-label">Simple pricing</div>
+  <h2 class="section-title">One price. All summer.</h2>
+
+  <div class="pricing-card reveal">
+    <div class="pricing-badge">🌞 Summer 2025 — Early Bird</div>
+    <div class="pricing-name">Cleardays Summer Pass</div>
+    <div class="pricing-desc">Full access from April through August 2025</div>
+    <div class="pricing-amount">
+      <span class="pricing-dollar">$</span>
+      <span class="pricing-number">29</span>
+      <div style="display:flex;flex-direction:column;justify-content:flex-end;padding-bottom:8px">
+        <span style="font-size:28px;font-weight:600;color:var(--ink)">.99</span>
+      </div>
+    </div>
+    <div class="pricing-period">one-time · covers the whole family · no subscription</div>
+
+    <ul class="pricing-features">
+      <li><span class="check">✓</span> Full summer planner (April–August)</li>
+      <li><span class="check">✓</span> Camp & activity finder by ZIP code</li>
+      <li><span class="check">✓</span> Budget tracker with pay status</li>
+      <li><span class="check">✓</span> Transport coordinator for both parents</li>
+      <li><span class="check">✓</span> Unlimited children & activities</li>
+      <li><span class="check">✓</span> Co-parent sharing & collaboration</li>
+      <li><span class="check">✓</span> Mobile-friendly access</li>
+    </ul>
+
+    <button class="btn-pricing" onclick="handlePricing()">Get Cleardays for $29.99</button>
+    <p class="pricing-guarantee">🔒 Secure checkout · 7-day money-back guarantee</p>
+  </div>
+</section>
+
+<!-- TESTIMONIALS -->
+<section class="testimonials">
+  <div class="section-label">From DFW parents</div>
+  <h2 class="section-title">They planned smarter.<br>Their kids had a better summer.</h2>
+
+  <div class="testimonials-grid">
+    <div class="testimonial-card reveal">
+      <div class="stars">★★★★★</div>
+      <p class="testimonial-text">"I used Hat's Google Sheet last summer and it genuinely changed how we planned. This app takes it to a completely different level."</p>
+      <div class="testimonial-author">
+        <div class="t-av" style="background:#E05C1A">SR</div>
+        <div>
+          <div class="t-name">Sarah R.</div>
+          <div class="t-detail">Mom of 2 · Plano, TX</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="testimonial-card reveal">
+      <div class="stars">★★★★★</div>
+      <p class="testimonial-text">"The transport coordinator alone is worth it. My husband and I were constantly miscommunicating pickups. Not anymore."</p>
+      <div class="testimonial-author">
+        <div class="t-av" style="background:#3D6B4A">JM</div>
+        <div>
+          <div class="t-name">Jessica M.</div>
+          <div class="t-detail">Mom of 3 · Frisco, TX</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="testimonial-card reveal">
+      <div class="stars">★★★★★</div>
+      <p class="testimonial-text">"Finding camps by ZIP and just clicking 'add to planner' — I wish I had this three summers ago. My kids are booked solid in the best way."</p>
+      <div class="testimonial-author">
+        <div class="t-av" style="background:#2E6EA6">DK</div>
+        <div>
+          <div class="t-name">David K.</div>
+          <div class="t-detail">Dad of 1 · Richardson, TX</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- FINAL CTA -->
+<section class="final-cta">
+  <h2 class="final-headline">This summer,<br><em>you're the one with the plan.</em></h2>
+  <p class="final-sub">Join hundreds of DFW parents building a summer their kids will remember.</p>
+
+  <div class="final-form">
+    <input class="final-input" type="email" placeholder="Your email address" id="finalEmail">
+    <button class="btn-hero" onclick="handleFinalSignup()">Get Started</button>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <div class="footer-logo">Clear<em>days</em></div>
+  <div class="footer-copy">© 2025 Cleardays · Made for parents, by a parent · Dallas, TX</div>
+</footer>
+
+<div class="toast" id="toast"></div>
+
+<script>
+  // Scroll reveal
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach((e, i) => {
+      if (e.isIntersecting) {
+        setTimeout(() => e.target.classList.add('visible'), i * 80);
+      }
+    });
+  }, { threshold: 0.1 });
+
+  document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
+
+  function showToast(msg) {
+    const t = document.getElementById('toast');
+    t.textContent = msg;
+    t.classList.add('show');
+    setTimeout(() => t.classList.remove('show'), 4000);
+  }
+
+  function handleSignup() {
+    const email = document.getElementById('heroEmail').value;
+    if (!email || !email.includes('@')) {
+      showToast('Please enter a valid email address');
+      return;
+    }
+    document.getElementById('heroEmail').value = '';
+    showToast('🎉 You\'re on the list! We\'ll be in touch before launch.');
+  }
+
+  function handleFinalSignup() {
+    const email = document.getElementById('finalEmail').value;
+    if (!email || !email.includes('@')) {
+      showToast('Please enter a valid email address');
+      return;
+    }
+    document.getElementById('finalEmail').value = '';
+    showToast('🎉 You\'re on the list! We\'ll be in touch before launch.');
+  }
+
+  const stripe = Stripe('pk_test_51T9wbxPqUm7fv07VUrORWlVaxGTBJ4sYwHrfuZkB1LG5Cm2TIUblEaZNY3OxHTya2Ew4ukeU0P6Duu0SPLkcvgmd00FWQU6dys');
+
+  async function handlePricing() {
+    const btn = document.querySelector('.btn-pricing');
+    const orig = btn.textContent;
+    btn.textContent = 'Redirecting to checkout...';
+    btn.disabled = true;
+    const { error } = await stripe.redirectToCheckout({
+      lineItems: [{ price: 'price_1T9wgVPqUm7fv07VdAVNVctm', quantity: 1 }],
+      mode: 'payment',
+      successUrl: window.location.origin + '?success=true',
+      cancelUrl: window.location.href,
+    });
+    if (error) {
+      showToast('Something went wrong - please try again.');
+      btn.textContent = orig;
+      btn.disabled = false;
+    }
+  }
+</script>
+</body>
+</html>
