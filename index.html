@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -832,7 +833,6 @@
     footer { flex-direction: column; gap: 8px; text-align: center; }
   }
 </style>
-<script src="https://js.stripe.com/v3/"></script>
 </head>
 <body>
 
@@ -1121,24 +1121,8 @@
     showToast('🎉 You\'re on the list! We\'ll be in touch before launch.');
   }
 
-  const stripe = Stripe('pk_test_51T9wbxPqUm7fv07VUrORWlVaxGTBJ4sYwHrfuZkB1LG5Cm2TIUblEaZNY3OxHTya2Ew4ukeU0P6Duu0SPLkcvgmd00FWQU6dys');
-
-  async function handlePricing() {
-    const btn = document.querySelector('.btn-pricing');
-    const orig = btn.textContent;
-    btn.textContent = 'Redirecting to checkout...';
-    btn.disabled = true;
-    const { error } = await stripe.redirectToCheckout({
-      lineItems: [{ price: 'price_1T9wgVPqUm7fv07VdAVNVctm', quantity: 1 }],
-      mode: 'payment',
-      successUrl: window.location.origin + '?success=true',
-      cancelUrl: window.location.href,
-    });
-    if (error) {
-      showToast('Something went wrong - please try again.');
-      btn.textContent = orig;
-      btn.disabled = false;
-    }
+  function handlePricing() {
+    window.location.href = 'https://buy.stripe.com/test_bJe5kF1oy8l2ayvgo38IU00';
   }
 </script>
 </body>
