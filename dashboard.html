@@ -1,0 +1,825 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Joydays — Dashboard</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@500;700&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<style>
+  :root {
+    --cream: #FDF8F2;
+    --warm-white: #FFFCF8;
+    --sand: #F0E8D8;
+    --tan: #D4C4A8;
+    --brown: #8B6F4E;
+    --deep: #2C1810;
+    --accent: #E8622A;
+    --accent-light: #FFF0E8;
+    --accent-mid: #F4A06A;
+    --green: #4A7C59;
+    --green-light: #EAF2EC;
+    --blue: #2E6EA6;
+    --blue-light: #E8F2FA;
+    --purple: #7B5EA7;
+    --purple-light: #F3EFF8;
+    --yellow: #D4A017;
+    --yellow-light: #FDF6E3;
+    --red: #C0392B;
+    --border: #E8DDD0;
+    --shadow: 0 2px 12px rgba(44,24,16,0.08);
+    --shadow-lg: 0 8px 32px rgba(44,24,16,0.12);
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { font-family: 'DM Sans', sans-serif; background: var(--cream); color: var(--deep); min-height: 100vh; }
+
+  /* AUTH GATE */
+  #authGate {
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: var(--cream);
+  }
+  .auth-card {
+    background: white;
+    border: 1.5px solid var(--border);
+    border-radius: 16px;
+    padding: 40px;
+    text-align: center;
+    max-width: 340px;
+  }
+  .auth-card h2 { font-family: 'Playfair Display', serif; font-size: 24px; margin-bottom: 8px; }
+  .auth-card p { font-size: 14px; color: var(--brown); margin-bottom: 20px; }
+  .auth-btn {
+    display: inline-block;
+    background: var(--accent);
+    color: white;
+    border: none;
+    border-radius: 8px;
+    padding: 12px 24px;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    text-decoration: none;
+    transition: background 0.2s;
+  }
+  .auth-btn:hover { background: #d4551f; }
+
+  /* APP */
+  #app { display: none; }
+
+  header {
+    background: var(--deep);
+    padding: 0 32px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    height: 64px;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+  }
+  .logo { font-family: 'Playfair Display', serif; font-size: 24px; color: var(--cream); letter-spacing: -0.5px; }
+  .logo span { color: var(--accent-mid); }
+  .header-right { display: flex; align-items: center; gap: 16px; }
+  .user-pill {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    background: rgba(255,255,255,0.08);
+    border: 1px solid rgba(255,255,255,0.15);
+    border-radius: 8px;
+    padding: 6px 12px;
+    color: var(--cream);
+    font-size: 13px;
+  }
+  .avatar { width: 28px; height: 28px; border-radius: 50%; background: var(--accent); display: flex; align-items: center; justify-content: center; font-size: 11px; font-weight: 700; color: white; }
+  .btn-primary { background: var(--accent); color: white; border: none; border-radius: 8px; padding: 8px 16px; font-family: 'DM Sans', sans-serif; font-size: 13px; font-weight: 600; cursor: pointer; transition: all 0.2s; }
+  .btn-primary:hover { background: #d4551f; }
+  .btn-ghost { background: transparent; color: rgba(255,255,255,0.6); border: none; font-family: 'DM Sans', sans-serif; font-size: 13px; cursor: pointer; transition: color 0.2s; }
+  .btn-ghost:hover { color: white; }
+
+  .app-layout { display: flex; height: calc(100vh - 64px); }
+
+  /* SIDEBAR */
+  .sidebar { width: 260px; background: var(--warm-white); border-right: 1px solid var(--border); display: flex; flex-direction: column; overflow-y: auto; flex-shrink: 0; }
+  .sidebar-section { padding: 20px 20px 0; }
+  .sidebar-label { font-size: 10px; font-weight: 600; letter-spacing: 1.2px; text-transform: uppercase; color: var(--brown); margin-bottom: 10px; }
+  .month-tabs { display: flex; flex-direction: column; gap: 2px; }
+  .month-tab { display: flex; align-items: center; justify-content: space-between; padding: 8px 12px; border-radius: 8px; cursor: pointer; font-size: 14px; font-weight: 500; transition: all 0.15s; color: var(--deep); }
+  .month-tab:hover { background: var(--sand); }
+  .month-tab.active { background: var(--accent-light); color: var(--accent); font-weight: 600; }
+  .month-tab .count { background: var(--sand); color: var(--brown); border-radius: 12px; padding: 1px 8px; font-size: 11px; font-weight: 600; }
+  .month-tab.active .count { background: var(--accent); color: white; }
+
+  .cost-card { margin: 16px 20px; background: var(--deep); border-radius: 12px; padding: 16px; color: var(--cream); }
+  .cost-card-title { font-size: 11px; font-weight: 600; letter-spacing: 1px; text-transform: uppercase; color: var(--tan); margin-bottom: 12px; }
+  .cost-total { font-family: 'Playfair Display', serif; font-size: 32px; font-weight: 700; color: white; line-height: 1; margin-bottom: 4px; }
+  .cost-subtitle { font-size: 12px; color: var(--tan); margin-bottom: 14px; }
+  .cost-bar-bg { background: rgba(255,255,255,0.1); border-radius: 4px; height: 6px; margin-bottom: 8px; }
+  .cost-bar-fill { background: var(--accent-mid); border-radius: 4px; height: 6px; transition: width 0.6s ease; }
+  .cost-breakdown { display: flex; justify-content: space-between; font-size: 11px; }
+  .cost-paid { color: var(--accent-mid); font-weight: 600; }
+  .cost-unpaid { color: rgba(255,255,255,0.5); }
+
+  /* CHILDREN */
+  .children-list { padding: 0 20px 16px; display: flex; flex-direction: column; gap: 6px; }
+  .child-chip { display: flex; align-items: center; gap: 10px; background: var(--accent-light); border-radius: 10px; padding: 10px 12px; cursor: pointer; transition: background 0.15s; }
+  .child-chip:hover { background: var(--sand); }
+  .child-av { width: 32px; height: 32px; border-radius: 50%; background: var(--accent); display: flex; align-items: center; justify-content: center; font-size: 13px; font-weight: 700; color: white; flex-shrink: 0; }
+  .child-name { font-weight: 600; font-size: 13px; }
+  .child-count { font-size: 11px; color: var(--brown); }
+  .add-child-btn { display: flex; align-items: center; gap: 8px; padding: 8px 12px; border-radius: 8px; border: 1.5px dashed var(--border); color: var(--brown); font-size: 13px; cursor: pointer; transition: all 0.15s; background: none; width: 100%; font-family: 'DM Sans', sans-serif; }
+  .add-child-btn:hover { border-color: var(--accent); color: var(--accent); }
+
+  /* MAIN */
+  .main { flex: 1; overflow-y: auto; padding: 24px 28px; }
+  .main-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 20px; }
+  .main-title { font-family: 'Playfair Display', serif; font-size: 28px; font-weight: 700; color: var(--deep); }
+  .main-subtitle { font-size: 14px; color: var(--brown); margin-top: 2px; }
+  .main-actions { display: flex; gap: 10px; align-items: center; }
+  .btn-secondary { background: white; color: var(--deep); border: 1.5px solid var(--border); border-radius: 8px; padding: 8px 14px; font-family: 'DM Sans', sans-serif; font-size: 13px; font-weight: 500; cursor: pointer; transition: all 0.15s; }
+  .btn-secondary:hover { border-color: var(--accent); color: var(--accent); }
+
+  .stats-bar { display: flex; gap: 16px; margin-bottom: 20px; }
+  .stat-chip { background: white; border: 1px solid var(--border); border-radius: 10px; padding: 10px 14px; display: flex; align-items: center; gap: 8px; font-size: 13px; flex: 1; }
+  .stat-icon { font-size: 18px; }
+  .stat-val { font-weight: 700; font-size: 18px; color: var(--deep); }
+  .stat-lbl { font-size: 11px; color: var(--brown); }
+
+  /* WEEK / DAY ROWS */
+  .week-block { margin-bottom: 24px; }
+  .week-label { font-size: 11px; font-weight: 700; letter-spacing: 1.5px; text-transform: uppercase; color: var(--brown); padding: 0 4px; margin-bottom: 8px; display: flex; align-items: center; gap: 8px; }
+  .week-label::after { content: ''; flex: 1; height: 1px; background: var(--border); }
+
+  .day-row { display: grid; grid-template-columns: 90px 100px 1fr 130px 90px 80px; gap: 0; align-items: stretch; background: white; border: 1px solid var(--border); border-radius: 10px; margin-bottom: 6px; transition: all 0.15s; overflow: hidden; }
+  .day-row:hover { border-color: var(--accent-mid); box-shadow: var(--shadow); }
+  .day-row.has-activity { border-left: 3px solid var(--accent-mid); }
+  .day-row.weekend { background: var(--warm-white); }
+  .day-row.holiday { background: var(--yellow-light); border-color: var(--yellow); }
+
+  .day-cell { padding: 10px 12px; display: flex; flex-direction: column; justify-content: center; border-right: 1px solid var(--border); font-size: 13px; }
+  .day-cell:last-child { border-right: none; }
+  .day-date { font-weight: 700; font-size: 14px; color: var(--deep); }
+  .day-name { font-size: 11px; color: var(--brown); font-weight: 500; }
+  .time-cell { color: var(--brown); font-size: 12px; }
+
+  .activity-cell { padding: 8px 12px; border-right: 1px solid var(--border); }
+  .activity-name { font-weight: 600; font-size: 13px; color: var(--deep); display: flex; align-items: center; gap: 6px; }
+  .activity-location { font-size: 11px; color: var(--brown); margin-top: 2px; }
+  .activity-tags { display: flex; gap: 4px; margin-top: 5px; flex-wrap: wrap; }
+  .tag { font-size: 10px; font-weight: 600; padding: 2px 7px; border-radius: 4px; letter-spacing: 0.3px; }
+  .tag-sport { background: var(--green-light); color: var(--green); }
+  .tag-science { background: var(--blue-light); color: var(--blue); }
+  .tag-arts { background: var(--purple-light); color: var(--purple); }
+  .tag-tech { background: var(--blue-light); color: var(--blue); }
+  .tag-social { background: var(--yellow-light); color: var(--yellow); }
+  .tag-outdoor { background: var(--green-light); color: var(--green); }
+
+  .transport-cell { padding: 8px 10px; border-right: 1px solid var(--border); display: flex; flex-direction: column; gap: 4px; justify-content: center; }
+  .transport-mini { display: flex; align-items: center; gap: 5px; font-size: 11px; }
+  .transport-mini .av-small { width: 18px; height: 18px; border-radius: 50%; font-size: 9px; font-weight: 700; display: flex; align-items: center; justify-content: center; color: white; flex-shrink: 0; }
+  .transport-mini .label { color: var(--brown); font-size: 10px; }
+
+  .cost-cell { padding: 8px 10px; border-right: 1px solid var(--border); display: flex; flex-direction: column; align-items: flex-end; justify-content: center; }
+  .cost-amount { font-weight: 700; font-size: 14px; color: var(--deep); }
+  .cost-free { font-size: 12px; color: var(--green); font-weight: 600; }
+
+  .status-cell { padding: 8px 10px; display: flex; align-items: center; justify-content: center; }
+  .status-badge { font-size: 11px; font-weight: 700; padding: 4px 10px; border-radius: 20px; letter-spacing: 0.3px; }
+  .status-paid { background: var(--green-light); color: var(--green); }
+  .status-unpaid { background: var(--yellow-light); color: var(--yellow); }
+  .status-booked { background: var(--blue-light); color: var(--blue); }
+  .status-pending { background: var(--sand); color: var(--brown); }
+  .status-nocost { background: var(--green-light); color: var(--green); }
+
+  .empty-activity { display: flex; align-items: center; gap: 8px; color: var(--tan); font-size: 13px; cursor: pointer; padding: 4px 0; }
+  .empty-activity:hover { color: var(--accent); }
+  .add-btn { width: 20px; height: 20px; border-radius: 50%; background: var(--sand); border: none; display: flex; align-items: center; justify-content: center; cursor: pointer; font-size: 14px; color: var(--brown); transition: all 0.15s; flex-shrink: 0; }
+  .add-btn:hover { background: var(--accent); color: white; }
+
+  .holiday-content { grid-column: 2 / -1; display: flex; align-items: center; gap: 8px; padding: 10px 12px; font-weight: 600; font-size: 14px; color: var(--yellow); }
+
+  /* SEARCH PANEL */
+  .search-panel { width: 320px; background: white; border-left: 1px solid var(--border); display: flex; flex-direction: column; flex-shrink: 0; }
+  .search-header { padding: 20px; border-bottom: 1px solid var(--border); }
+  .search-title { font-family: 'Playfair Display', serif; font-size: 18px; font-weight: 700; margin-bottom: 12px; }
+  .search-input-wrap { display: flex; gap: 8px; align-items: center; background: var(--cream); border: 1.5px solid var(--border); border-radius: 10px; padding: 8px 12px; }
+  .search-input-wrap:focus-within { border-color: var(--accent); }
+  .search-input { border: none; background: none; font-family: 'DM Sans', sans-serif; font-size: 13px; color: var(--deep); flex: 1; outline: none; }
+  .search-input::placeholder { color: var(--tan); }
+  .filter-chips { padding: 12px 20px; display: flex; gap: 6px; flex-wrap: wrap; border-bottom: 1px solid var(--border); }
+  .chip { font-size: 11px; font-weight: 600; padding: 5px 10px; border-radius: 20px; cursor: pointer; border: 1.5px solid var(--border); background: white; color: var(--brown); transition: all 0.15s; }
+  .chip:hover { border-color: var(--accent-mid); color: var(--accent); }
+  .chip.active { background: var(--accent); border-color: var(--accent); color: white; }
+  .activity-list { flex: 1; overflow-y: auto; padding: 12px 16px; }
+  .activity-card { border: 1.5px solid var(--border); border-radius: 10px; padding: 12px; margin-bottom: 10px; cursor: pointer; transition: all 0.15s; background: white; }
+  .activity-card:hover { border-color: var(--accent-mid); box-shadow: var(--shadow); transform: translateY(-1px); }
+  .ac-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 6px; }
+  .ac-name { font-weight: 600; font-size: 13px; color: var(--deep); flex: 1; padding-right: 8px; }
+  .ac-price { font-weight: 700; font-size: 13px; color: var(--accent); white-space: nowrap; }
+  .ac-org { font-size: 11px; color: var(--brown); margin-bottom: 6px; }
+  .ac-meta { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+  .ac-meta span { font-size: 11px; color: var(--brown); }
+  .ac-footer { display: flex; justify-content: space-between; align-items: center; margin-top: 8px; padding-top: 8px; border-top: 1px solid var(--border); }
+  .btn-add-activity { background: var(--accent-light); color: var(--accent); border: none; border-radius: 6px; padding: 5px 12px; font-family: 'DM Sans', sans-serif; font-size: 12px; font-weight: 600; cursor: pointer; transition: all 0.15s; }
+  .btn-add-activity:hover { background: var(--accent); color: white; }
+  .affiliate-badge { font-size: 10px; background: var(--yellow-light); color: var(--yellow); border-radius: 4px; padding: 2px 6px; font-weight: 600; }
+
+  /* MODAL */
+  .modal-overlay { position: fixed; inset: 0; background: rgba(44,24,16,0.5); z-index: 200; display: flex; align-items: center; justify-content: center; backdrop-filter: blur(4px); opacity: 0; pointer-events: none; transition: opacity 0.2s; }
+  .modal-overlay.open { opacity: 1; pointer-events: all; }
+  .modal { background: white; border-radius: 16px; padding: 28px; width: 520px; max-width: 90vw; box-shadow: var(--shadow-lg); transform: translateY(12px); transition: transform 0.2s; max-height: 90vh; overflow-y: auto; }
+  .modal-overlay.open .modal { transform: translateY(0); }
+  .modal-title { font-family: 'Playfair Display', serif; font-size: 20px; font-weight: 700; margin-bottom: 20px; color: var(--deep); }
+  .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+  .form-full { grid-column: 1 / -1; }
+  .form-label { font-size: 11px; font-weight: 600; letter-spacing: 0.8px; text-transform: uppercase; color: var(--brown); margin-bottom: 5px; display: block; }
+  .form-input, .form-select { width: 100%; border: 1.5px solid var(--border); border-radius: 8px; padding: 8px 12px; font-family: 'DM Sans', sans-serif; font-size: 13px; color: var(--deep); background: white; outline: none; transition: border-color 0.15s; }
+  .form-input:focus, .form-select:focus { border-color: var(--accent); }
+  .modal-footer { display: flex; justify-content: flex-end; gap: 10px; margin-top: 20px; padding-top: 16px; border-top: 1px solid var(--border); }
+
+  /* ADD CHILD MODAL */
+  .child-modal { width: 380px; }
+
+  /* LOADING */
+  .loading { display: flex; align-items: center; justify-content: center; padding: 40px; color: var(--brown); font-size: 14px; gap: 10px; }
+  .spinner { width: 20px; height: 20px; border: 2px solid var(--border); border-top-color: var(--accent); border-radius: 50%; animation: spin 0.8s linear infinite; }
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  /* TOAST */
+  .toast { position: fixed; bottom: 24px; right: 24px; background: var(--deep); color: white; padding: 12px 18px; border-radius: 10px; font-size: 13px; font-weight: 500; z-index: 300; transform: translateY(60px); opacity: 0; transition: all 0.3s; }
+  .toast.show { transform: translateY(0); opacity: 1; }
+
+  ::-webkit-scrollbar { width: 6px; }
+  ::-webkit-scrollbar-track { background: transparent; }
+  ::-webkit-scrollbar-thumb { background: var(--tan); border-radius: 3px; }
+</style>
+</head>
+<body>
+
+<!-- AUTH GATE -->
+<div id="authGate">
+  <div class="auth-card">
+    <div style="font-size:36px;margin-bottom:16px">☀️</div>
+    <h2>Checking your session…</h2>
+    <p>Just a moment while we sign you in.</p>
+    <div class="spinner" style="margin:0 auto"></div>
+  </div>
+</div>
+
+<!-- MAIN APP -->
+<div id="app">
+  <header>
+    <div class="logo">Clear<span>days</span></div>
+    <div class="header-right">
+      <div class="user-pill">
+        <div class="avatar" id="userAvatar">?</div>
+        <span id="userEmail">Loading…</span>
+      </div>
+      <button class="btn-ghost" onclick="signOut()">Sign out</button>
+      <button class="btn-primary" onclick="openModal()">+ Add Activity</button>
+    </div>
+  </header>
+
+  <div class="app-layout">
+    <!-- SIDEBAR -->
+    <aside class="sidebar">
+      <div class="sidebar-section" style="padding-top:20px">
+        <div class="sidebar-label">Months</div>
+        <div class="month-tabs" id="monthTabs"></div>
+      </div>
+
+      <div class="cost-card">
+        <div class="cost-card-title">Summer Budget</div>
+        <div class="cost-total" id="totalCost">$0</div>
+        <div class="cost-subtitle">total planned spend</div>
+        <div class="cost-bar-bg"><div class="cost-bar-fill" id="costBar" style="width:0%"></div></div>
+        <div class="cost-breakdown">
+          <span class="cost-paid" id="paidCost">$0 paid</span>
+          <span class="cost-unpaid" id="unpaidCost">$0 pending</span>
+        </div>
+      </div>
+
+      <div class="sidebar-section">
+        <div class="sidebar-label">Children</div>
+      </div>
+      <div class="children-list" id="childrenList">
+        <div class="loading"><div class="spinner"></div></div>
+      </div>
+    </aside>
+
+    <!-- MAIN PLANNER -->
+    <main class="main">
+      <div class="main-header">
+        <div>
+          <div class="main-title" id="monthTitle">Loading…</div>
+          <div class="main-subtitle" id="monthSubtitle"></div>
+        </div>
+        <div class="main-actions">
+          <button class="btn-secondary" onclick="toggleSearch()">🔍 Find Camps</button>
+          <button class="btn-primary" onclick="openModal()">+ Add Activity</button>
+        </div>
+      </div>
+
+      <div class="stats-bar" id="statsBar">
+        <div class="stat-chip"><span class="stat-icon">🏕️</span><div><div class="stat-val" id="statActivities">0</div><div class="stat-lbl">Activities</div></div></div>
+        <div class="stat-chip"><span class="stat-icon">💰</span><div><div class="stat-val" id="statCost">$0</div><div class="stat-lbl">This Month</div></div></div>
+        <div class="stat-chip"><span class="stat-icon">📅</span><div><div class="stat-val" id="statOpen">0</div><div class="stat-lbl">Open Days</div></div></div>
+        <div class="stat-chip"><span class="stat-icon">🚗</span><div><div class="stat-val" id="statPickups">0</div><div class="stat-lbl">Pickups</div></div></div>
+      </div>
+
+      <div id="plannerContent">
+        <div class="loading"><div class="spinner"></div> Loading your planner…</div>
+      </div>
+    </main>
+
+    <!-- SEARCH PANEL -->
+    <aside class="search-panel" id="searchPanel" style="display:none;flex-direction:column">
+      <div class="search-header">
+        <div class="search-title">Find Camps & Activities</div>
+        <div class="search-input-wrap">
+          <span>📍</span>
+          <input class="search-input" placeholder="ZIP code (e.g. 75093)" id="zipInput" oninput="filterMerchants()">
+        </div>
+      </div>
+      <div class="filter-chips" id="filterChips">
+        <div class="chip active" onclick="setFilter(this,'all')">All</div>
+        <div class="chip" onclick="setFilter(this,'Sport')">🎾 Sport</div>
+        <div class="chip" onclick="setFilter(this,'Science')">🔬 Science</div>
+        <div class="chip" onclick="setFilter(this,'Arts')">🎨 Arts</div>
+        <div class="chip" onclick="setFilter(this,'Tech')">💻 Tech</div>
+        <div class="chip" onclick="setFilter(this,'Outdoor')">🌿 Outdoor</div>
+      </div>
+      <div class="activity-list" id="merchantList">
+        <div class="loading"><div class="spinner"></div></div>
+      </div>
+    </aside>
+  </div>
+</div>
+
+<!-- ADD ACTIVITY MODAL -->
+<div class="modal-overlay" id="modalOverlay" onclick="handleOverlayClick(event)">
+  <div class="modal">
+    <div class="modal-title">Add Activity</div>
+    <div class="form-grid">
+      <div class="form-full">
+        <label class="form-label">Activity Name</label>
+        <input class="form-input" id="f_name" placeholder="e.g. Tennis Camp, Go Kart Session…">
+      </div>
+      <div>
+        <label class="form-label">Child</label>
+        <select class="form-select" id="f_child"></select>
+      </div>
+      <div>
+        <label class="form-label">Category</label>
+        <select class="form-select" id="f_category">
+          <option>Sport</option>
+          <option>Science</option>
+          <option>Arts</option>
+          <option>Tech</option>
+          <option>Outdoor</option>
+          <option>Social</option>
+        </select>
+      </div>
+      <div>
+        <label class="form-label">Date</label>
+        <input class="form-input" type="date" id="f_date">
+      </div>
+      <div>
+        <label class="form-label">Start Time</label>
+        <input class="form-input" type="time" id="f_start">
+      </div>
+      <div>
+        <label class="form-label">End Time</label>
+        <input class="form-input" type="time" id="f_end">
+      </div>
+      <div class="form-full">
+        <label class="form-label">Location</label>
+        <input class="form-input" id="f_location" placeholder="e.g. Brookhaven Country Club, Plano TX">
+      </div>
+      <div>
+        <label class="form-label">Cost ($)</label>
+        <input class="form-input" type="number" id="f_cost" placeholder="0">
+      </div>
+      <div>
+        <label class="form-label">Pay Status</label>
+        <select class="form-select" id="f_status">
+          <option>Paid</option>
+          <option>Booked, Unpaid</option>
+          <option>Pending</option>
+          <option>No Cost</option>
+        </select>
+      </div>
+      <div>
+        <label class="form-label">Drop-off</label>
+        <select class="form-select" id="f_drop">
+          <option value="">—</option>
+          <option>Me</option>
+          <option>Partner</option>
+          <option>Both</option>
+          <option>Carpool</option>
+        </select>
+      </div>
+      <div>
+        <label class="form-label">Pick-up</label>
+        <select class="form-select" id="f_pickup">
+          <option value="">—</option>
+          <option>Me</option>
+          <option>Partner</option>
+          <option>Both</option>
+          <option>Carpool</option>
+        </select>
+      </div>
+      <div class="form-full">
+        <label class="form-label">Materials / Equipment Needed</label>
+        <input class="form-input" id="f_materials" placeholder="e.g. Tennis Racket, Shoes, Snacks, Water">
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn-secondary" onclick="closeModal()">Cancel</button>
+      <button class="btn-primary" onclick="saveActivity()">Save Activity</button>
+    </div>
+  </div>
+</div>
+
+<!-- ADD CHILD MODAL -->
+<div class="modal-overlay" id="childModalOverlay" onclick="handleChildOverlayClick(event)">
+  <div class="modal child-modal">
+    <div class="modal-title">Add a Child</div>
+    <div>
+      <label class="form-label">Child's Name</label>
+      <input class="form-input" id="childName" placeholder="e.g. Arth, Siona…" style="margin-bottom:0">
+    </div>
+    <div class="modal-footer">
+      <button class="btn-secondary" onclick="closeChildModal()">Cancel</button>
+      <button class="btn-primary" onclick="saveChild()">Add Child</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+const SUPABASE_URL = 'https://jtrbcorhnokokxtutmio.supabase.co';
+const SUPABASE_KEY = 'sb_publishable_8Ft91_p3MtwapHLoLWfDLA_ftrebeIb';
+const { createClient } = supabase;
+const sb = createClient(SUPABASE_URL, SUPABASE_KEY);
+
+let currentUser = null;
+let activities = [];
+let children = [];
+let merchants = [];
+let currentMonth = new Date().getMonth(); // 0-based
+let currentYear = 2025;
+let activeFilter = 'all';
+
+const MONTHS = ['January','February','March','April','May','June','July','August','September','October','November','December'];
+const SUMMER_MONTHS = [3,4,5,6,7]; // April=3 through August=7
+
+const CATEGORY_EMOJI = { Sport:'🎾', Science:'🚀', Arts:'🎨', Tech:'💻', Outdoor:'🌿', Social:'👥' };
+const CATEGORY_TAG = { Sport:'tag-sport', Science:'tag-science', Arts:'tag-arts', Tech:'tag-tech', Outdoor:'tag-outdoor', Social:'tag-social' };
+
+// ── AUTH ──
+sb.auth.onAuthStateChange(async (event, session) => {
+  if (session) {
+    currentUser = session.user;
+    document.getElementById('authGate').style.display = 'none';
+    document.getElementById('app').style.display = 'block';
+    const email = currentUser.email || '';
+    document.getElementById('userEmail').textContent = email.split('@')[0];
+    document.getElementById('userAvatar').textContent = email[0]?.toUpperCase() || '?';
+    // Default to current summer month
+    const now = new Date();
+    currentMonth = SUMMER_MONTHS.includes(now.getMonth()) ? now.getMonth() : 4; // default May
+    await loadAll();
+  } else {
+    window.location.href = 'login.html';
+  }
+});
+
+async function signOut() {
+  await sb.auth.signOut();
+  window.location.href = 'login.html';
+}
+
+// ── LOAD ALL DATA ──
+async function loadAll() {
+  await Promise.all([loadChildren(), loadActivities(), loadMerchants()]);
+  renderMonthTabs();
+  renderPlanner();
+  updateBudget();
+}
+
+async function loadChildren() {
+  const { data } = await sb.from('children').select('*').order('created_at');
+  children = data || [];
+  renderChildren();
+}
+
+async function loadActivities() {
+  const { data } = await sb.from('activities').select('*').order('activity_date');
+  activities = data || [];
+}
+
+async function loadMerchants() {
+  const { data } = await sb.from('merchants').select('*').eq('is_active', true);
+  merchants = data || [];
+  renderMerchants();
+}
+
+// ── CHILDREN ──
+function renderChildren() {
+  const list = document.getElementById('childrenList');
+  let html = '';
+  children.forEach(c => {
+    const count = activities.filter(a => a.child_id === c.id).length;
+    html += `<div class="child-chip">
+      <div class="child-av">${c.name[0].toUpperCase()}</div>
+      <div><div class="child-name">${c.name}</div><div class="child-count">${count} activities</div></div>
+    </div>`;
+  });
+  html += `<button class="add-child-btn" onclick="openChildModal()">+ Add child</button>`;
+  list.innerHTML = html;
+
+  // Update child select in modal
+  const sel = document.getElementById('f_child');
+  sel.innerHTML = children.map(c => `<option value="${c.id}">${c.name}</option>`).join('');
+  if (!children.length) sel.innerHTML = '<option value="">No children yet</option>';
+}
+
+function openChildModal() { document.getElementById('childModalOverlay').classList.add('open'); }
+function closeChildModal() { document.getElementById('childModalOverlay').classList.remove('open'); }
+function handleChildOverlayClick(e) { if (e.target === document.getElementById('childModalOverlay')) closeChildModal(); }
+
+async function saveChild() {
+  const name = document.getElementById('childName').value.trim();
+  if (!name) return;
+  const { error } = await sb.from('children').insert({ user_id: currentUser.id, name });
+  if (error) { showToast('Error saving child'); return; }
+  document.getElementById('childName').value = '';
+  closeChildModal();
+  await loadChildren();
+  showToast(`✅ ${name} added!`);
+}
+
+// ── MONTH TABS ──
+function renderMonthTabs() {
+  const tabs = document.getElementById('monthTabs');
+  tabs.innerHTML = SUMMER_MONTHS.map(m => {
+    const count = activities.filter(a => new Date(a.activity_date).getMonth() === m).length;
+    const active = m === currentMonth ? 'active' : '';
+    return `<div class="month-tab ${active}" onclick="setMonth(${m})">
+      <span>${MONTHS[m]}</span><span class="count">${count}</span>
+    </div>`;
+  }).join('');
+}
+
+function setMonth(m) {
+  currentMonth = m;
+  renderMonthTabs();
+  renderPlanner();
+  updateBudget();
+}
+
+// ── BUDGET ──
+function updateBudget() {
+  const total = activities.reduce((s, a) => s + (parseFloat(a.cost) || 0), 0);
+  const paid = activities.filter(a => a.pay_status === 'Paid').reduce((s, a) => s + (parseFloat(a.cost) || 0), 0);
+  const unpaid = total - paid;
+  document.getElementById('totalCost').textContent = '$' + total.toFixed(0);
+  document.getElementById('paidCost').textContent = '$' + paid.toFixed(0) + ' paid';
+  document.getElementById('unpaidCost').textContent = '$' + unpaid.toFixed(0) + ' pending';
+  const pct = total > 0 ? Math.min((paid / total) * 100, 100) : 0;
+  document.getElementById('costBar').style.width = pct + '%';
+
+  // Stats
+  const monthActs = activities.filter(a => new Date(a.activity_date).getMonth() === currentMonth);
+  const monthCost = monthActs.reduce((s, a) => s + (parseFloat(a.cost) || 0), 0);
+  const pickups = monthActs.filter(a => a.transport_pickup).length;
+  document.getElementById('statActivities').textContent = monthActs.length;
+  document.getElementById('statCost').textContent = '$' + monthCost.toFixed(0);
+  document.getElementById('statPickups').textContent = pickups;
+}
+
+// ── PLANNER ──
+function renderPlanner() {
+  document.getElementById('monthTitle').textContent = MONTHS[currentMonth] + ' ' + currentYear;
+
+  const daysInMonth = new Date(currentYear, currentMonth + 1, 0).getDate();
+  const days = [];
+  for (let d = 1; d <= daysInMonth; d++) {
+    days.push(new Date(currentYear, currentMonth, d));
+  }
+
+  const weekdays = days.filter(d => d.getDay() !== 0 && d.getDay() !== 6);
+  const openDays = weekdays.filter(d => !activities.some(a => {
+    const ad = new Date(a.activity_date);
+    return ad.getDate() === d.getDate() && ad.getMonth() === d.getMonth();
+  })).length;
+  document.getElementById('statOpen').textContent = openDays;
+  document.getElementById('monthSubtitle').textContent = `${daysInMonth} days · ${weekdays.length} school days · ${activities.filter(a => new Date(a.activity_date).getMonth() === currentMonth).length} activities planned`;
+
+  // Group into weeks
+  let html = '';
+  let weekStart = null;
+  let weekHtml = '';
+  let weekCount = 0;
+
+  days.forEach(day => {
+    if (day.getDay() === 1 || (weekCount === 0 && day.getDay() !== 0)) {
+      if (weekHtml) html += `<div class="week-block"><div class="week-label">Week of ${weekStart}</div>${weekHtml}</div>`;
+      weekStart = day.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+      weekHtml = '';
+      weekCount++;
+    }
+    weekHtml += renderDayRow(day);
+  });
+  if (weekHtml) html += `<div class="week-block"><div class="week-label">Week of ${weekStart}</div>${weekHtml}</div>`;
+
+  document.getElementById('plannerContent').innerHTML = html || '<div class="loading">No days to show</div>';
+}
+
+const HOLIDAYS = {
+  '2025-05-26': '🇺🇸 Memorial Day — No School',
+  '2025-06-19': '✊ Juneteenth — No School',
+  '2025-07-04': '🎆 Independence Day — No School',
+};
+
+function renderDayRow(day) {
+  const dateStr = day.toISOString().split('T')[0];
+  const dayActs = activities.filter(a => a.activity_date === dateStr);
+  const isWeekend = day.getDay() === 0 || day.getDay() === 6;
+  const holiday = HOLIDAYS[dateStr];
+  const dayLabel = day.toLocaleDateString('en-US', { weekday: 'short' });
+  const dayNum = `${day.getMonth() + 1}/${day.getDate()}`;
+
+  if (holiday) {
+    return `<div class="day-row holiday">
+      <div class="day-cell"><div class="day-date">${dayNum}</div><div class="day-name">${dayLabel}</div></div>
+      <div class="holiday-content">${holiday}</div>
+    </div>`;
+  }
+
+  if (dayActs.length === 0) {
+    return `<div class="day-row ${isWeekend ? 'weekend' : ''}">
+      <div class="day-cell"><div class="day-date">${dayNum}</div><div class="day-name">${dayLabel}</div></div>
+      <div class="day-cell time-cell">—</div>
+      <div class="activity-cell">
+        <div class="empty-activity" onclick="openModalForDate('${dateStr}')">
+          <button class="add-btn">+</button><span>Add an activity…</span>
+        </div>
+      </div>
+      <div class="transport-cell"></div>
+      <div class="cost-cell"></div>
+      <div class="status-cell"></div>
+    </div>`;
+  }
+
+  return dayActs.map(act => {
+    const emoji = CATEGORY_EMOJI[act.category] || '📌';
+    const tagClass = CATEGORY_TAG[act.category] || 'tag-social';
+    const timeStr = act.start_time ? `${fmt12(act.start_time)}${act.end_time ? '–<br>'+fmt12(act.end_time) : ''}` : '—';
+    const costStr = (!act.cost || act.cost == 0) ? `<span class="cost-free">Free</span>` : `<span class="cost-amount">$${parseFloat(act.cost).toFixed(0)}</span>`;
+    const statusClass = { 'Paid':'status-paid','Booked, Unpaid':'status-booked','Pending':'status-pending','No Cost':'status-nocost' }[act.pay_status] || 'status-pending';
+    const drop = act.transport_drop ? `<div class="transport-mini"><div class="av-small" style="background:var(--accent)">${act.transport_drop[0]}</div><span class="label">Drop</span></div>` : '';
+    const pickup = act.transport_pickup ? `<div class="transport-mini"><div class="av-small" style="background:var(--green)">${act.transport_pickup[0]}</div><span class="label">Pick up</span></div>` : '';
+
+    return `<div class="day-row has-activity ${isWeekend ? 'weekend' : ''}">
+      <div class="day-cell"><div class="day-date">${dayNum}</div><div class="day-name">${dayLabel}</div></div>
+      <div class="day-cell time-cell">${timeStr}</div>
+      <div class="activity-cell">
+        <div class="activity-name">${emoji} ${act.name}</div>
+        ${act.location ? `<div class="activity-location">📍 ${act.location}</div>` : ''}
+        <div class="activity-tags"><span class="tag ${tagClass}">${act.category || ''}</span></div>
+      </div>
+      <div class="transport-cell">${drop}${pickup}</div>
+      <div class="cost-cell">${costStr}</div>
+      <div class="status-cell"><span class="status-badge ${statusClass}">${act.pay_status || 'Pending'}</span></div>
+    </div>`;
+  }).join('');
+}
+
+function fmt12(t) {
+  if (!t) return '';
+  const [h, m] = t.split(':');
+  const hr = parseInt(h);
+  return (hr % 12 || 12) + ':' + m + (hr < 12 ? 'AM' : 'PM');
+}
+
+// ── ADD ACTIVITY ──
+function openModal() {
+  document.getElementById('f_date').value = '';
+  document.getElementById('modalOverlay').classList.add('open');
+}
+
+function openModalForDate(dateStr) {
+  document.getElementById('f_date').value = dateStr;
+  document.getElementById('modalOverlay').classList.add('open');
+}
+
+function closeModal() { document.getElementById('modalOverlay').classList.remove('open'); }
+function handleOverlayClick(e) { if (e.target === document.getElementById('modalOverlay')) closeModal(); }
+
+async function saveActivity() {
+  const name = document.getElementById('f_name').value.trim();
+  const date = document.getElementById('f_date').value;
+  if (!name || !date) { showToast('Name and date are required'); return; }
+
+  const childId = document.getElementById('f_child').value || null;
+  const payload = {
+    user_id: currentUser.id,
+    child_id: childId || null,
+    name,
+    category: document.getElementById('f_category').value,
+    activity_date: date,
+    start_time: document.getElementById('f_start').value || null,
+    end_time: document.getElementById('f_end').value || null,
+    location: document.getElementById('f_location').value || null,
+    cost: parseFloat(document.getElementById('f_cost').value) || 0,
+    pay_status: document.getElementById('f_status').value,
+    transport_drop: document.getElementById('f_drop').value || null,
+    transport_pickup: document.getElementById('f_pickup').value || null,
+    materials: document.getElementById('f_materials').value || null,
+  };
+
+  const { error } = await sb.from('activities').insert(payload);
+  if (error) { showToast('Error saving: ' + error.message); return; }
+
+  closeModal();
+  document.getElementById('f_name').value = '';
+  await loadActivities();
+  renderPlanner();
+  renderChildren();
+  updateBudget();
+  renderMonthTabs();
+  showToast('✅ Activity saved!');
+}
+
+// ── MERCHANTS ──
+function renderMerchants(filter = activeFilter, zip = '') {
+  const list = document.getElementById('merchantList');
+  let filtered = merchants;
+  if (filter !== 'all') filtered = filtered.filter(m => m.category === filter);
+  if (zip.length >= 3) filtered = filtered.filter(m => m.zip_code && m.zip_code.includes(zip));
+
+  if (!filtered.length) { list.innerHTML = '<div style="padding:20px;color:var(--brown);font-size:13px">No camps found. Try a different filter.</div>'; return; }
+
+  list.innerHTML = filtered.map(m => `
+    <div class="activity-card">
+      <div class="ac-header">
+        <div class="ac-name">${CATEGORY_EMOJI[m.category] || '📌'} ${m.name}</div>
+        <div class="ac-price">$${m.price_per_week}/wk</div>
+      </div>
+      <div class="ac-org">${m.location || ''}</div>
+      <div class="ac-meta">
+        ${m.schedule ? `<span>⏰ ${m.schedule}</span>` : ''}
+        ${m.age_min && m.age_max ? `<span>Ages ${m.age_min}–${m.age_max}</span>` : ''}
+      </div>
+      <div class="ac-footer">
+        ${m.is_affiliate ? '<span class="affiliate-badge">💰 Affiliate</span>' : '<span></span>'}
+        <button class="btn-add-activity" onclick="addFromMerchant('${m.name.replace(/'/g,"\\'")}','${m.category}','${(m.location||'').replace(/'/g,"\\'")}',${m.price_per_week})">+ Add to Planner</button>
+      </div>
+    </div>`).join('');
+}
+
+function addFromMerchant(name, category, location, cost) {
+  document.getElementById('f_name').value = name;
+  document.getElementById('f_category').value = category;
+  document.getElementById('f_location').value = location;
+  document.getElementById('f_cost').value = cost;
+  document.getElementById('f_date').value = '';
+  toggleSearch();
+  openModal();
+}
+
+function setFilter(el, filter) {
+  document.querySelectorAll('.chip').forEach(c => c.classList.remove('active'));
+  el.classList.add('active');
+  activeFilter = filter;
+  renderMerchants(filter, document.getElementById('zipInput').value);
+}
+
+function filterMerchants() {
+  renderMerchants(activeFilter, document.getElementById('zipInput').value);
+}
+
+function toggleSearch() {
+  const panel = document.getElementById('searchPanel');
+  const isVisible = panel.style.display !== 'none';
+  panel.style.display = isVisible ? 'none' : 'flex';
+}
+
+// ── UTILS ──
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 3000);
+}
+</script>
+</body>
+</html>
