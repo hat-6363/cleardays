@@ -19,7 +19,7 @@ export default async function handler(req, res) {
   try {
     // Generate a magic link server-side — this creates the user if needed, confirmed
     const { data, error } = await supabaseAdmin.auth.admin.generateLink({
-      type: 'magiclink',
+      type: 'signup',
       email,
     });
 
