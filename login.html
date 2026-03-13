@@ -114,7 +114,6 @@
   let currentEmail = '';
   let currentOTP = '';
 
-  // Poll until Supabase UMD bundle is ready, then init
   function waitForSupabase(cb) {
     if (typeof supabase !== 'undefined' && supabase.createClient) {
       cb();
@@ -125,7 +124,6 @@
 
   waitForSupabase(function() {
     sb = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
-    // Redirect if already logged in
     sb.auth.getSession().then(({ data }) => {
       if (data.session) window.location.href = 'dashboard.html';
     });
@@ -236,39 +234,25 @@
     btn.disabled = true;
 
     try {
-      // Step 1: server generates a magic link token
-      const sessionRes = await fetch('/api/create-session', {
+      // Call server — it verifies the user exists (or creates them) and returns a real session
+      const res = await fetch('/api/create-session', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email: currentEmail })
       });
-      const sessionData = await sessionRes.json();
-      if (!sessionRes.ok) throw new Error(sessionData.error || 'Session creation failed');
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || 'Session creation failed');
 
-      const { hashed_token } = sessionData;
-      if (!hashed_token) throw new Error('No token returned from server');
+      const { access_token, refresh_token } = data;
+      if (!access_token || !refresh_token) throw new Error('No session tokens returned');
 
-      // Step 2: exchange token for a real Supabase session
-      const { data, error } = await sb.auth.verifyOtp({
-        token_hash: hashed_token,
-        type: 'email',
-      });
-      if (error) throw new Error(error.message);
-      if (!data.session) throw new Error('No session returned.');
+      // Set the session directly in the Supabase client — no token exchange, no verifyOtp
+      const { error: setError } = await sb.auth.setSession({ access_token, refresh_token });
+      if (setError) throw new Error(setError.message);
 
       suc.textContent = '✅ Verified! Taking you to your dashboard…';
       suc.classList.add('show');
-
-      // Step 3: poll until session is confirmed in localStorage, then redirect
-      let attempts = 0;
-      const check = setInterval(async () => {
-        attempts++;
-        const { data: s } = await sb.auth.getSession();
-        if (s.session || attempts > 20) {
-          clearInterval(check);
-          window.location.href = 'dashboard.html';
-        }
-      }, 150);
+      setTimeout(() => { window.location.href = 'dashboard.html'; }, 800);
 
     } catch (e) {
       err.textContent = e.message;
