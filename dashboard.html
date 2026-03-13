@@ -6,8 +6,8 @@
 <title>Joydays — Dashboard</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@500;700&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-<style>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.39.0/dist/umd/supabase.min.js"></script>
+  <style>
   :root {
     --cream: #FDF8F2;
     --warm-white: #FFFCF8;
@@ -526,7 +526,7 @@ async function loadActivities() {
 }
 
 async function loadMerchants() {
-  const { data } = await sb.from('merchants').select('*').eq('is_active', true);
+  const { data, error } = await sb.from('merchants').select('*').eq('is_active', true);
   merchants = data || [];
   renderMerchants();
 }
