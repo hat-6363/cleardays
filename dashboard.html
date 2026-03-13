@@ -6,7 +6,7 @@
 <title>Joydays — Dashboard</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@500;700&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.39.0/dist/umd/supabase.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.39.0/dist/umd/supabase.min.js" onload="initApp()"></script>  
   <style>
   :root {
     --cream: #FDF8F2;
@@ -464,6 +464,7 @@
 <div class="toast" id="toast"></div>
 
 <script>
+function initApp() {
 const SUPABASE_URL = 'https://jtrbcorhnokokxtutmio.supabase.co';
 const SUPABASE_KEY = 'sb_publishable_8Ft91_p3MtwapHLoLWfDLA_ftrebeIb';
 const { createClient } = supabase;
@@ -820,6 +821,7 @@ function showToast(msg) {
   t.classList.add('show');
   setTimeout(() => t.classList.remove('show'), 3000);
 }
+  // end initApp
 </script>
 </body>
 </html>
