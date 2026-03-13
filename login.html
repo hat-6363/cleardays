@@ -249,7 +249,7 @@
       btn.disabled = true;
 
       try {
-        // Server creates/confirms user and returns a session directly
+        // Step 1: Server generates a magic link token for this email
         const sessionRes = await fetch('/api/create-session', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
@@ -258,17 +258,17 @@
         const sessionData = await sessionRes.json();
         if (!sessionRes.ok) throw new Error(sessionData.error || 'Session creation failed');
 
-        if (sessionData.access_token && sessionData.refresh_token) {
-          // Set the session directly — no password, no email confirmation needed
-          const { data, error } = await sb.auth.setSession({
-            access_token: sessionData.access_token,
-            refresh_token: sessionData.refresh_token,
-          });
-          if (error) throw new Error(error.message);
-          if (!data.session) throw new Error('Could not establish session.');
-        } else {
-          throw new Error('Unexpected response from server. Debug: ' + JSON.stringify(sessionData));
-        }
+        const { hashed_token } = sessionData;
+        if (!hashed_token) throw new Error('No token returned from server');
+
+        // Step 2: Exchange the token for a real session — no password, no email confirmation
+        const { data, error } = await sb.auth.verifyOtp({
+          token_hash: hashed_token,
+          type: 'email',
+        });
+
+        if (error) throw new Error(error.message);
+        if (!data.session) throw new Error('No session returned.');
 
         suc.textContent = '\u2705 Verified! Taking you to your dashboard\u2026';
         suc.classList.add('show');
