@@ -17,19 +17,32 @@ export default async function handler(req, res) {
   );
 
   try {
-    // Generate a magic link server-side — this creates the user if needed, confirmed
-    const { data, error } = await supabaseAdmin.auth.admin.generateLink({
-      type: 'signup',
-      email,
+    // Step 1: look up the user by email
+    const { data: { users }, error: listError } = await supabaseAdmin.auth.admin.listUsers();
+    if (listError) return res.status(500).json({ error: listError.message });
+
+    let user = users.find(u => u.email === email.toLowerCase());
+
+    // Step 2: if user doesn't exist yet, create them
+    if (!user) {
+      const { data: newUser, error: createError } = await supabaseAdmin.auth.admin.createUser({
+        email: email.toLowerCase(),
+        email_confirm: true,
+      });
+      if (createError) return res.status(500).json({ error: createError.message });
+      user = newUser.user;
+    }
+
+    // Step 3: create a session directly for this user — no token exchange needed
+    const { data: sessionData, error: sessionError } = await supabaseAdmin.auth.admin.createSession({
+      user_id: user.id,
     });
+    if (sessionError) return res.status(500).json({ error: sessionError.message });
 
-    if (error) return res.status(500).json({ error: error.message });
-
-    const hashed_token = data?.properties?.hashed_token;
-    if (!hashed_token) return res.status(500).json({ error: 'No token returned', debug: data });
-
-    // Return the token to the client — client will call verifyOtp with it
-    return res.status(200).json({ hashed_token });
+    return res.status(200).json({
+      access_token: sessionData.session.access_token,
+      refresh_token: sessionData.session.refresh_token,
+    });
 
   } catch (err) {
     return res.status(500).json({ error: err.message });
