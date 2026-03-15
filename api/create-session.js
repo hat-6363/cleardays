@@ -17,13 +17,12 @@ export default async function handler(req, res) {
   );
 
   try {
-    // Step 1: look up the user by email
+    // Ensure user exists — create if not
     const { data: { users }, error: listError } = await supabaseAdmin.auth.admin.listUsers();
     if (listError) return res.status(500).json({ error: listError.message });
 
     let user = users.find(u => u.email === email.toLowerCase());
 
-    // Step 2: if user doesn't exist yet, create them
     if (!user) {
       const { data: newUser, error: createError } = await supabaseAdmin.auth.admin.createUser({
         email: email.toLowerCase(),
@@ -33,15 +32,15 @@ export default async function handler(req, res) {
       user = newUser.user;
     }
 
-    // Step 3: create a session directly for this user — no token exchange needed
-    const { data: sessionData, error: sessionError } = await supabaseAdmin.auth.admin.createSession({
-      user_id: user.id,
+    // Generate a magic link — gives us a hashed_token the client can use
+    const { data: linkData, error: linkError } = await supabaseAdmin.auth.admin.generateLink({
+      type: 'magiclink',
+      email: email.toLowerCase(),
     });
-    if (sessionError) return res.status(500).json({ error: sessionError.message });
+    if (linkError) return res.status(500).json({ error: linkError.message });
 
     return res.status(200).json({
-      access_token: sessionData.session.access_token,
-      refresh_token: sessionData.session.refresh_token,
+      hashed_token: linkData.properties.hashed_token,
     });
 
   } catch (err) {
