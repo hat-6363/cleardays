@@ -123,8 +123,9 @@
   }
 
   waitForSupabase(function() {
-    sb = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
-    sb.auth.getSession().then(({ data }) => {
+sb = supabase.createClient(SUPABASE_URL, SUPABASE_KEY, {
+  auth: { persistSession: true, storageKey: 'joydays-auth' }
+});    sb.auth.getSession().then(({ data }) => {
       if (data.session) window.location.href = 'dashboard.html';
     });
   });
