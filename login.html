@@ -170,43 +170,40 @@ sb = supabase.createClient(SUPABASE_URL, SUPABASE_KEY, {
   }
 
   // ── SEND OTP ──
-  async function sendOTP() {
-    const email = document.getElementById('emailInput').value.trim().toLowerCase();
-    const btn = document.getElementById('sendBtn');
-    const err = document.getElementById('error1');
-    err.classList.remove('show');
+async function sendOTP() {
+  const email = document.getElementById('emailInput').value.trim().toLowerCase();
+  const btn = document.getElementById('sendBtn');
+  const err = document.getElementById('error1');
+  err.classList.remove('show');
 
-    if (!email || !email.includes('@')) {
-      err.textContent = 'Please enter a valid email address.';
-      err.classList.add('show');
-      return;
-    }
-
-    btn.textContent = 'Sending…';
-    btn.disabled = true;
-    currentEmail = email;
-    currentOTP = generateOTP();
-
-    try {
-      const res = await fetch('/api/send-otp', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email, code: currentOTP })
-      });
-      const data = await res.json();
-      if (!res.ok) throw new Error(data.error || 'Failed to send code');
-
-      document.getElementById('sentToEmail').textContent = email;
-      document.getElementById('step1').classList.remove('active');
-      document.getElementById('step2').classList.add('active');
-      otpInputs[0].focus();
-    } catch (e) {
-      err.textContent = 'Could not send code: ' + e.message;
-      err.classList.add('show');
-      btn.disabled = false;
-      btn.textContent = 'Send Code';
-    }
+  if (!email || !email.includes('@')) {
+    err.textContent = 'Please enter a valid email address.';
+    err.classList.add('show');
+    return;
   }
+
+  btn.textContent = 'Sending…';
+  btn.disabled = true;
+  currentEmail = email;
+
+  try {
+    const { error } = await sb.auth.signInWithOtp({ 
+      email,
+      options: { shouldCreateUser: true }
+    });
+    if (error) throw new Error(error.message);
+
+    document.getElementById('sentToEmail').textContent = email;
+    document.getElementById('step1').classList.remove('active');
+    document.getElementById('step2').classList.add('active');
+    otpInputs[0].focus();
+  } catch (e) {
+    err.textContent = 'Could not send code: ' + e.message;
+    err.classList.add('show');
+    btn.disabled = false;
+    btn.textContent = 'Send Code';
+  }
+}
 
   // ── VERIFY OTP ──
 async function verifyOTP() {
@@ -223,39 +220,17 @@ async function verifyOTP() {
     return;
   }
 
-  if (code !== currentOTP) {
-    err.textContent = 'Incorrect code. Please try again.';
-    err.classList.add('show');
-    otpInputs.forEach(i => { i.value = ''; i.classList.remove('filled'); });
-    otpInputs[0].focus();
-    return;
-  }
-
   btn.textContent = 'Signing in…';
   btn.disabled = true;
 
   try {
-    const res = await fetch('/api/create-session', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ email: currentEmail })
+    const { data, error } = await sb.auth.verifyOtp({
+      email: currentEmail,
+      token: code,
+      type: 'email'
     });
-
-    const data = await res.json();
-    if (!res.ok) throw new Error(data.error || 'Session creation failed');
-
-    const { access_token, refresh_token } = data;
-    if (!access_token || !refresh_token) throw new Error('No tokens returned');
-
-    // Store tokens directly in localStorage — no lock acquired
-    const session = {
-      access_token,
-      refresh_token,
-      expires_in: 3600,
-      expires_at: Math.floor(Date.now() / 1000) + 3600,
-      token_type: 'bearer',
-    };
-    localStorage.setItem('joydays-auth', JSON.stringify(session));
+    if (error) throw new Error(error.message);
+    if (!data.session) throw new Error('No session returned');
 
     suc.textContent = '✅ Verified! Taking you to your dashboard…';
     suc.classList.add('show');
@@ -264,6 +239,8 @@ async function verifyOTP() {
   } catch (e) {
     err.textContent = e.message;
     err.classList.add('show');
+    otpInputs.forEach(i => { i.value = ''; i.classList.remove('filled'); });
+    otpInputs[0].focus();
     btn.disabled = false;
     btn.textContent = 'Verify & Sign In';
   }
