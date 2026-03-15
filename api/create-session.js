@@ -40,6 +40,7 @@ export default async function handler(req, res) {
     if (linkError) return res.status(500).json({ error: linkError.message });
 
     // Extract tokens directly from the link properties
+    console.log('linkData:', JSON.stringify(linkData));
     const { access_token, refresh_token } = linkData.properties;
 
     if (!access_token || !refresh_token) {
