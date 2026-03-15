@@ -235,7 +235,6 @@ async function verifyOTP() {
   btn.disabled = true;
 
   try {
-    // Get hashed_token from server
     const res = await fetch('/api/create-session', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -245,15 +244,18 @@ async function verifyOTP() {
     const data = await res.json();
     if (!res.ok) throw new Error(data.error || 'Session creation failed');
 
-    const { hashed_token } = data;
-    if (!hashed_token) throw new Error('No token returned from server');
+    const { access_token, refresh_token } = data;
+    if (!access_token || !refresh_token) throw new Error('No tokens returned');
 
-    // Exchange hashed_token for a real Supabase session
-    const { error: verifyError } = await sb.auth.verifyOtp({
-      token_hash: hashed_token,
-      type: 'email',
-    });
-    if (verifyError) throw new Error(verifyError.message);
+    // Store tokens directly in localStorage — no lock acquired
+    const session = {
+      access_token,
+      refresh_token,
+      expires_in: 3600,
+      expires_at: Math.floor(Date.now() / 1000) + 3600,
+      token_type: 'bearer',
+    };
+    localStorage.setItem('joydays-auth', JSON.stringify(session));
 
     suc.textContent = '✅ Verified! Taking you to your dashboard…';
     suc.classList.add('show');
