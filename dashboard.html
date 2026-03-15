@@ -6,7 +6,7 @@
 <title>Joydays — Dashboard</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@500;700&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.39.0/dist/umd/supabase.min.js"></script>
 <style>
   :root {
     --cream: #FDF8F2;
@@ -467,8 +467,9 @@
 const SUPABASE_URL = 'https://jtrbcorhnokokxtutmio.supabase.co';
 const SUPABASE_KEY = 'sb_publishable_8Ft91_p3MtwapHLoLWfDLA_ftrebeIb';
 const { createClient } = supabase;
-const sb = createClient(SUPABASE_URL, SUPABASE_KEY);
-
+const sb = createClient(SUPABASE_URL, SUPABASE_KEY, {
+  auth: { persistSession: true, storageKey: 'joydays-auth' }
+});
 let currentUser = null;
 let activities = [];
 let children = [];
