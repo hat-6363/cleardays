@@ -468,7 +468,11 @@ const SUPABASE_URL = 'https://jtrbcorhnokokxtutmio.supabase.co';
 const SUPABASE_KEY = 'sb_publishable_8Ft91_p3MtwapHLoLWfDLA_ftrebeIb';
 const { createClient } = supabase;
 const sb = createClient(SUPABASE_URL, SUPABASE_KEY, {
-  auth: { persistSession: true, storageKey: 'joydays-auth' }
+  auth: {
+    persistSession: true,
+    storageKey: 'joydays-auth',
+    lock: async (name, acquireTimeout, fn) => fn()
+  }
 });
 let currentUser = null;
 let activities = [];
