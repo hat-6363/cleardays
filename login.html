@@ -208,59 +208,63 @@
   }
 
   // ── VERIFY OTP ──
-  async function verifyOTP() {
-    const code = Array.from(otpInputs).map(i => i.value).join('');
-    const btn = document.getElementById('verifyBtn');
-    const err = document.getElementById('error2');
-    const suc = document.getElementById('success2');
-    err.classList.remove('show');
-    suc.classList.remove('show');
+async function verifyOTP() {
+  const code = Array.from(otpInputs).map(i => i.value).join('');
+  const btn = document.getElementById('verifyBtn');
+  const err = document.getElementById('error2');
+  const suc = document.getElementById('success2');
+  err.classList.remove('show');
+  suc.classList.remove('show');
 
-    if (code.length < 6) {
-      err.textContent = 'Please enter all 6 digits.';
-      err.classList.add('show');
-      return;
-    }
-
-    if (code !== currentOTP) {
-      err.textContent = 'Incorrect code. Please try again.';
-      err.classList.add('show');
-      otpInputs.forEach(i => { i.value = ''; i.classList.remove('filled'); });
-      otpInputs[0].focus();
-      return;
-    }
-
-    btn.textContent = 'Signing in…';
-    btn.disabled = true;
-
-    try {
-      // Call server — it verifies the user exists (or creates them) and returns a real session
-      const res = await fetch('/api/create-session', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email: currentEmail })
-      });
-      const data = await res.json();
-      if (!res.ok) throw new Error(data.error || 'Session creation failed');
-
-      const { access_token, refresh_token } = data;
-      if (!access_token || !refresh_token) throw new Error('No session tokens returned');
-
-      // Set the session directly in the Supabase client — no token exchange, no verifyOtp
-      const { error: setError } = await sb.auth.setSession({ access_token, refresh_token });
-      if (setError) throw new Error(setError.message);
-
-      suc.textContent = '✅ Verified! Taking you to your dashboard…';
-      suc.classList.add('show');
-      setTimeout(() => { window.location.href = 'dashboard.html'; }, 800);
-
-    } catch (e) {
-      err.textContent = e.message;
-      err.classList.add('show');
-      btn.disabled = false;
-      btn.textContent = 'Verify & Sign In';
-    }
+  if (code.length < 6) {
+    err.textContent = 'Please enter all 6 digits.';
+    err.classList.add('show');
+    return;
   }
+
+  if (code !== currentOTP) {
+    err.textContent = 'Incorrect code. Please try again.';
+    err.classList.add('show');
+    otpInputs.forEach(i => { i.value = ''; i.classList.remove('filled'); });
+    otpInputs[0].focus();
+    return;
+  }
+
+  btn.textContent = 'Signing in…';
+  btn.disabled = true;
+
+  try {
+    // Get hashed_token from server
+    const res = await fetch('/api/create-session', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email: currentEmail })
+    });
+
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.error || 'Session creation failed');
+
+    const { hashed_token } = data;
+    if (!hashed_token) throw new Error('No token returned from server');
+
+    // Exchange hashed_token for a real Supabase session
+    const { error: verifyError } = await sb.auth.verifyOtp({
+      token_hash: hashed_token,
+      type: 'email',
+    });
+    if (verifyError) throw new Error(verifyError.message);
+
+    suc.textContent = '✅ Verified! Taking you to your dashboard…';
+    suc.classList.add('show');
+    setTimeout(() => { window.location.href = 'dashboard.html'; }, 800);
+
+  } catch (e) {
+    err.textContent = e.message;
+    err.classList.add('show');
+    btn.disabled = false;
+    btn.textContent = 'Verify & Sign In';
+  }
+}
 
   // ── RESEND ──
   async function resendCode() {
