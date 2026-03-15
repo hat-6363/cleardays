@@ -43,17 +43,23 @@ export default async function handler(req, res) {
     if (!hashed_token) return res.status(500).json({ error: 'Could not generate token' });
 
     // Exchange hashed_token for a real session via Supabase REST API
-    const verifyRes = await fetch(`${process.env.SUPABASE_URL}/auth/v1/verify`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'apikey': process.env.SUPABASE_SERVICE_ROLE_KEY,
-      },
-      body: JSON.stringify({
-        type: 'magiclink',
-        token: hashed_token,
-      }),
-    });
+    const verifyRes = await fetch(`${process.env.SUPABASE_URL}/auth/v1/verify?token=${hashed_token}&type=magiclink`, {
+  method: 'GET',
+  headers: {
+    'apikey': process.env.SUPABASE_SERVICE_ROLE_KEY,
+  },
+  redirect: 'manual',
+});
+
+// The response will be a redirect containing the session tokens in the URL fragment
+const location = verifyRes.headers.get('location');
+if (!location) return res.status(500).json({ error: 'No redirect from verify endpoint' });
+
+const url = new URL(location);
+const access_token = url.searchParams.get('access_token') || new URLSearchParams(url.hash.slice(1)).get('access_token');
+const refresh_token = url.searchParams.get('refresh_token') || new URLSearchParams(url.hash.slice(1)).get('refresh_token');
+
+if (!access_token) return res.status(500).json({ error: 'Could not extract tokens from redirect' });
 
     const session = await verifyRes.json();
 
