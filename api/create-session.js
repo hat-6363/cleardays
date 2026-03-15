@@ -32,22 +32,39 @@ export default async function handler(req, res) {
       user = created.user;
     }
 
-    // Generate a magic link — extract access_token and refresh_token from the URL
+    // Generate magic link and extract hashed_token
     const { data: linkData, error: linkError } = await admin.auth.admin.generateLink({
       type: 'magiclink',
       email: email.toLowerCase(),
     });
     if (linkError) return res.status(500).json({ error: linkError.message });
 
-    // Extract tokens directly from the link properties
-    console.log('linkData:', JSON.stringify(linkData));
-    const { access_token, refresh_token } = linkData.properties;
+    const hashed_token = linkData.properties?.hashed_token;
+    if (!hashed_token) return res.status(500).json({ error: 'Could not generate token' });
 
-    if (!access_token || !refresh_token) {
-      return res.status(500).json({ error: 'Could not generate session tokens' });
+    // Exchange hashed_token for a real session via Supabase REST API
+    const verifyRes = await fetch(`${process.env.SUPABASE_URL}/auth/v1/verify`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'apikey': process.env.SUPABASE_SERVICE_ROLE_KEY,
+      },
+      body: JSON.stringify({
+        type: 'magiclink',
+        token: hashed_token,
+      }),
+    });
+
+    const session = await verifyRes.json();
+
+    if (!verifyRes.ok || !session.access_token) {
+      return res.status(500).json({ error: session.error_description || 'Failed to verify token' });
     }
 
-    return res.status(200).json({ access_token, refresh_token });
+    return res.status(200).json({
+      access_token: session.access_token,
+      refresh_token: session.refresh_token,
+    });
 
   } catch (err) {
     return res.status(500).json({ error: err.message });
