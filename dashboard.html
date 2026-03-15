@@ -509,25 +509,30 @@ async function signOut() {
 
 // ── LOAD ALL DATA ──
 async function loadAll() {
-  await Promise.all([loadChildren(), loadActivities(), loadMerchants()]);
+  try { await loadChildren(); } catch(e) { console.error('children', e); }
+  try { await loadActivities(); } catch(e) { console.error('activities', e); }
+  try { await loadMerchants(); } catch(e) { console.error('merchants', e); }
   renderMonthTabs();
   renderPlanner();
   updateBudget();
 }
 
 async function loadChildren() {
-  const { data } = await sb.from('children').select('*').order('created_at');
+  const { data, error } = await sb.from('children').select('*').order('created_at');
+  if (error) console.error('loadChildren error:', error);
   children = data || [];
   renderChildren();
 }
 
 async function loadActivities() {
-  const { data } = await sb.from('activities').select('*').order('activity_date');
+  const { data, error } = await sb.from('activities').select('*').order('activity_date');
+  if (error) console.error('loadActivities error:', error);
   activities = data || [];
 }
 
 async function loadMerchants() {
-  const { data } = await sb.from('merchants').select('*').eq('is_active', true);
+  const { data, error } = await sb.from('merchants').select('*').eq('is_active', true);
+  if (error) console.error('loadMerchants error:', error);
   merchants = data || [];
   renderMerchants();
 }
