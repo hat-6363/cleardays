@@ -469,12 +469,24 @@ const SUPABASE_KEY = 'sb_publishable_8Ft91_p3MtwapHLoLWfDLA_ftrebeIb';
 const { createClient } = supabase;
 const sb = createClient(SUPABASE_URL, SUPABASE_KEY, {
   auth: {
-    persistSession: true,
-    storageKey: 'joydays-auth',
+    persistSession: false,
     detectSessionInUrl: false,
     lock: async (name, acquireTimeout, fn) => fn()
   }
 });
+  // Manually restore session from localStorage
+const rawSession = localStorage.getItem('joydays-auth');
+if (rawSession) {
+  try {
+    const parsed = JSON.parse(rawSession);
+    sb.auth.setSession({
+      access_token: parsed.access_token,
+      refresh_token: parsed.refresh_token
+    });
+  } catch(e) {
+    window.location.href = 'login.html';
+  }
+}
 let currentUser = null;
 let activities = [];
 let children = [];
